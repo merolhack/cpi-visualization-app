@@ -186,149 +186,167 @@ Es importante notar que el esquema de base de datos (`IRPC: Esquema de base de d
 ```mermaid
 erDiagram
     public_cpi_users {
-        UUID user_id PK
-        VARCHAR email Unique
+        user_id UUID
+        email VARCHAR
     }
+
     public_cpi_countries {
-        BIGINT country_id PK
-        VARCHAR country_name Unique
-        VARCHAR currency
+        country_id BIGINT
+        country_name VARCHAR
+        currency VARCHAR
     }
+
     public_cpi_branches {
-        BIGINT branch_id PK
-        VARCHAR branch_name Unique
+        branch_id BIGINT
+        branch_name VARCHAR
     }
+
     public_cpi_volunteers {
-        UUID user_id PK, FK "FK a public.cpi_users"
-        VARCHAR email Unique
-        VARCHAR name
-        VARCHAR whatsapp Nullable
-        BIGINT country_id FK "FK a public.cpi_countries"
-        BOOLEAN suspended
+        user_id UUID
+        email VARCHAR
+        name VARCHAR
+        whatsapp VARCHAR
+        country_id BIGINT
+        suspended BOOLEAN
     }
+
     public_cpi_finances {
-        BIGINT finance_id PK
-        UUID user_id FK "FK a public.cpi_users"
-        VARCHAR concept
-        DATETIME date
-        NUMERIC previous_balance
-        NUMERIC amount
-        NUMERIC current_balance
+        finance_id BIGINT
+        user_id UUID
+        concept VARCHAR
+        date DATETIME
+        previous_balance NUMERIC
+        amount NUMERIC
+        current_balance NUMERIC
     }
+
     public_cpi_withdrawals {
-        BIGINT withdrawal_id PK
-        UUID user_id FK "FK a public.cpi_users"
-        NUMERIC amount
-        VARCHAR concept
-        DATETIME request_date
-        BIGINT finance_id FK "FK a public.cpi_finances"
-        DATETIME sent_date Nullable
+        withdrawal_id BIGINT
+        user_id UUID
+        amount NUMERIC
+        concept VARCHAR
+        request_date DATETIME
+        finance_id BIGINT
+        sent_date DATETIME
     }
+
     public_cpi_locations {
-        BIGINT location_id PK
-        BIGINT country_id FK "FK a public.cpi_countries"
-        VARCHAR location_name
-        INT population
+        location_id BIGINT
+        country_id BIGINT
+        location_name VARCHAR
+        population INT
     }
+
     public_cpi_categories {
-        BIGINT category_id PK
-        BIGINT branch_id FK "FK a public.cpi_branches"
-        VARCHAR category_name
-        BOOLEAN is_essential_category
+        category_id BIGINT
+        branch_id BIGINT
+        category_name VARCHAR
+        is_essential_category BOOLEAN
     }
+
     public_cpi_establishments {
-        BIGINT establishment_id PK
-        BIGINT country_id FK "FK a public.cpi_countries"
-        VARCHAR establishment_name
+        establishment_id BIGINT
+        country_id BIGINT
+        establishment_name VARCHAR
     }
+
     public_cpi_establishment_categories {
-        BIGINT establishment_category_id PK
-        BIGINT establishment_id FK "FK a public.cpi_establishments"
-        BIGINT category_id FK "FK a public.cpi_categories"
+        establishment_category_id BIGINT
+        establishment_id BIGINT
+        category_id BIGINT
     }
+
     public_cpi_products {
-        BIGINT product_id PK
-        BIGINT country_id FK "FK a public.cpi_countries"
-        BIGINT category_id FK "FK a public.cpi_categories"
-        VARCHAR product_name
-        VARCHAR product_photo_url Nullable
-        BOOLEAN is_active_product
+        product_id BIGINT
+        country_id BIGINT
+        category_id BIGINT
+        product_name VARCHAR
+        product_photo_url VARCHAR
+        is_active_product BOOLEAN
     }
+
     public_cpi_tracking {
-        BIGINT tracking_id PK
-        BIGINT country_id FK "FK a public.cpi_countries"
-        BIGINT product_id FK "FK a public.cpi_products"
-        BIGINT location_id FK "FK a public.cpi_locations"
-        BIGINT establishment_id FK "FK a public.cpi_establishments"
-        UUID user_id FK "FK a public.cpi_users"
-        BOOLEAN is_active_tracking
+        tracking_id BIGINT
+        country_id BIGINT
+        product_id BIGINT
+        location_id BIGINT
+        establishment_id BIGINT
+        user_id UUID
+        is_active_tracking BOOLEAN
     }
+
     public_cpi_prices {
-        BIGINT price_id PK
-        BIGINT product_id FK "FK a public.cpi_products"
-        BIGINT location_id FK "FK a public.cpi_locations"
-        BIGINT establishment_id FK "FK a public.cpi_establishments"
-        UUID user_id FK "FK a public.cpi_users"
-        NUMERIC(10,2) price_value
-        DATE date
-        VARCHAR price_photo_url Nullable
-        BOOLEAN is_valid
-        DATETIME analyzed_date Nullable
+        price_id BIGINT
+        product_id BIGINT
+        location_id BIGINT
+        establishment_id BIGINT
+        user_id UUID
+        price_value NUMERIC
+        date DATE
+        price_photo_url VARCHAR
+        is_valid BOOLEAN
+        analyzed_date DATETIME
     }
+
     public_cpi_criteria {
-        BIGINT criterion_id PK
-        VARCHAR criterion_name Unique
-        VARCHAR criterion_description Nullable
-        BOOLEAN is_active_criterion
-        NUMERIC acceptance_score
+        criterion_id BIGINT
+        criterion_name VARCHAR
+        criterion_description VARCHAR
+        is_active_criterion BOOLEAN
+        acceptance_score NUMERIC
     }
+
     public_cpi_annual_product_location_establishment_inflation {
-        BIGINT aple_inflation_id PK
-        BIGINT recent_price_id FK "FK a public.cpi_prices"
-        BIGINT product_id FK "FK a public.cpi_products"
-        BIGINT country_id FK "FK a public.cpi_countries"
-        BIGINT location_id FK "FK a public.cpi_locations"
-        BIGINT establishment_id FK "FK a public.cpi_establishments"
-        DATE recent_date
-        DATE historical_date
-        INT days_between_measurements
-        NUMERIC recent_price_value
-        NUMERIC historical_price_value
-        NUMERIC aple_inflation_rate Nullable
+        aple_inflation_id BIGINT
+        recent_price_id BIGINT
+        product_id BIGINT
+        country_id BIGINT
+        location_id BIGINT
+        establishment_id BIGINT
+        recent_date DATE
+        historical_date DATE
+        days_between_measurements INT
+        recent_price_value NUMERIC
+        historical_price_value NUMERIC
+        aple_inflation_rate NUMERIC
     }
+
     public_cpi_category_location_inflation {
-        BIGINT cli_id PK
-        BIGINT country_id FK "FK a public.cpi_countries"
-        BIGINT category_id FK "FK a public.cpi_categories"
-        BIGINT location_id FK "FK a public.cpi_locations"
-        NUMERIC cli_inflation_rate Nullable
-        DATETIME update_date
-        INT month
-        INT year
+        cli_id BIGINT
+        country_id BIGINT
+        category_id BIGINT
+        location_id BIGINT
+        cli_inflation_rate NUMERIC
+        update_date DATETIME
+        month INT
+        year INT
     }
+
     public_cpi_category_inflation {
-        BIGINT ci_id PK
-        BIGINT country_id FK "FK a public.cpi_countries"
-        BIGINT category_id FK "FK a public.cpi_categories"
-        NUMERIC ci_inflation_rate Nullable
-        DATETIME update_date
-        INT month
-        INT year
+        ci_id BIGINT
+        country_id BIGINT
+        category_id BIGINT
+        ci_inflation_rate NUMERIC
+        update_date DATETIME
+        month INT
+        year INT
     }
+
     public_cpi_weights {
-        BIGINT weight_id PK
-        BIGINT criterion_id FK "FK a public.cpi_criteria"
-        BIGINT category_id FK "FK a public.cpi_categories"
-        NUMERIC weight_value
+        weight_id BIGINT
+        criterion_id BIGINT
+        category_id BIGINT
+        weight_value NUMERIC
     }
+
     public_cpi_real_cpi {
-        BIGINT real_cpi_id PK
-        BIGINT country_id FK "FK a public.cpi_countries"
-        BIGINT criterion_id FK "FK a public.cpi_criteria"
-        NUMERIC real_cpi_inflation_rate Nullable
-        DATETIME update_date
-        INT month
-        INT year
+        real_cpi_id BIGINT
+        country_id BIGINT
+        criterion_id BIGINT
+        real_cpi_inflation_rate NUMERIC
+        update_date DATETIME
+        month INT
+        year INT
     }
 
     public_cpi_users ||--o| public_cpi_volunteers : "es voluntario"
