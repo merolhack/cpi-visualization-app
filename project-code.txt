@@ -1,0 +1,519 @@
+file: src\app\_components\CpiChart.tsx
+// src/app/_components/CpiChart.tsx
+'use client';
+
+import React, { useEffect, useRef } from 'react';
+import * as d3 from 'd3';
+
+type DataPoint = { period: string; value: number };
+interface InflationChartProps {
+  data: DataPoint[];
+}
+
+type CpiDataPoint = { period: string; value: number };
+
+export default function CpiChart({ data }: InflationChartProps) {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  useEffect(() => {
+    if (!data || data.length === 0 || !svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove(); // Limpiar renderizados previos
+
+    const width = parseInt(svg.style("width")) || 800;
+    const height = 400; // Altura fija
+    const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+
+    const parseDate = d3.timeParse("%Y-%m-%d");
+    const processedData = data
+      .map(d => ({
+        period: parseDate(d.period)!,
+        value: d.value
+      }))
+      .filter(d => d.period); // Asegurarse de que las fechas sean válidas
+
+    // Si no hay datos procesados, no hacer nada
+    if (processedData.length === 0 || !d3.max(processedData, d => d.value)) return;
+
+    const x = d3.scaleTime()
+      .domain(d3.extent(processedData, d => d.period) as [Date, Date])
+      .range([margin.left, width - margin.right]);
+
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(processedData, d => d.value) ?? 1])
+      .nice() // Asegura que los ticks del eje Y sean números "redondos"
+      .range([height - margin.bottom, margin.top]);
+
+    // CORRECCIÓN: Tipado genérico para las selecciones de D3 en funciones de eje
+    const xAxis = (g: d3.Selection<SVGGElement, unknown, null, undefined>) => g
+      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
+
+    const yAxis = (g: d3.Selection<SVGGElement, unknown, null, undefined>) => g
+      .attr("transform", `translate(${margin.left},0)`)
+      .call(d3.axisLeft(y).tickFormat(d => `${d}%`)) // MEJORA: Formato de porcentaje
+      .call(g => g.select(".domain").remove());
+
+    svg.append("g").call(xAxis);
+    svg.append("g").call(yAxis);
+
+    const line = d3.line<{ period: Date; value: number }>()
+      .x(d => x(d.period))
+      .y(d => y(d.value));
+
+    svg.append("path")
+      .datum(processedData)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 2)
+      .attr("d", line);
+
+    // Lógica del Tooltip (sin cambios, ya era funcional)
+    const tooltip = svg.append("g").style("display", "none");
+    tooltip.append("circle").attr("r", 5).attr("fill", "steelblue");
+    const tooltipText = tooltip.append("text").attr("font-size", 12).attr("text-anchor", "middle").attr("y", -10);
+
+    svg.append("rect")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("fill", "none")
+      .attr("pointer-events", "all")
+      .on("mouseover", () => tooltip.style("display", null))
+      .on("mouseout", () => tooltip.style("display", "none"))
+      .on("mousemove", function (event: any) {
+          const bisectDate = d3.bisector((d: { period: Date }) => d.period).left;
+          const x0 = x.invert(event);
+          const i = bisectDate(processedData, x0, 1);
+          const d0 = processedData[i - 1];
+          const d1 = processedData[i];
+          const d = d1 && d0 ? (x0.getTime() - d0.period.getTime() > d1.period.getTime() - x0.getTime() ? d1 : d0) : (d0 || d1);
+          
+          if (!d) return;
+
+          tooltip.attr("transform", `translate(${x(d.period)},${y(d.value)})`);
+          tooltipText.text(`${d.value.toFixed(2)}% - ${d3.timeFormat("%b %Y")(d.period)}`);
+      });
+
+  }, [data]);
+
+  return <svg ref={svgRef} className="w-full" style={{ height: '400px' }}></svg>;
+}
+
+file: src\app\lib\supabase\client.ts
+// src/app/lib/supabase/client.ts
+import { createBrowserClient } from '@supabase/ssr';
+
+export function createClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
+
+file: src\app\lib\supabase\server.ts
+// src/app/lib/supabase/server.ts
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+export async function createClient() {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options });
+          } catch (error) {
+            // ignore in server components
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: '', ...options });
+          } catch (error) {
+            // ignore in server components
+          }
+        },
+      },
+    }
+  );
+}
+
+file: src\app\layout.tsx
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  title: "Create Next App",
+  description: "Generated by create next app",
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        {children}
+      </body>
+    </html>
+  );
+}
+
+file: src\app\page.tsx
+// file: src/app/page.tsx
+import { createClient } from '@/app/lib/supabase/server';
+import { headers } from 'next/headers'; // <-- PASO 1: Importar 'headers'
+import CpiChart from './_components/CpiChart';
+import CountrySelector from './_components/CountrySelector';
+import ProductPriceComparisonChart from './_components/ProductPriceComparisonChart';
+
+export const dynamic = 'force-dynamic';
+
+// Tipos de datos (se mantienen igual)
+type InflationDataPoint = { year: number; month: number; real_cpi_inflation_rate: number | null };
+type PriceComparisonData = { product_name: string; establishment_name: string; price_value: number };
+
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
+  const resolvedSearchParams = await searchParams;
+  headers(); // <-- PASO 2: Llamar a la función headers()
+
+  const supabase = await createClient();
+
+  // --- 1. GESTIÓN DEL PAÍS SELECCIONADO ---
+  const { data: countries, error: countriesError } = await supabase.from('cpi_countries').select('country_id, country_name');
+  if (countriesError) console.error("Error fetching countries:", countriesError);
+  
+  // Use resolvedSearchParams instead of searchParams
+  const selectedCountryId = resolvedSearchParams?.countryId ?? '1';
+  const selectedCountry = countries?.find(c => c.country_id.toString() === selectedCountryId);
+
+  // --- 2. OBTENCIÓN DE DATOS PARA LA GRÁFICA PRINCIPAL (INFLACIÓN) ---
+  let mainCpiValue: number | null = null;
+  let chartData: { period: string, value: number }[] = [];
+
+  if (selectedCountry) {
+    const { data: inflationData, error: inflationError } = await supabase
+      .from('cpi_real_cpi')
+      .select('year, month, real_cpi_inflation_rate')
+      .eq('country_id', selectedCountry.country_id)
+      .order('year', { ascending: false }).order('month', { ascending: false }).limit(1);
+
+    if (inflationError) console.error('Error fetching inflation data:', inflationError);
+    else if (inflationData && inflationData.length > 0) {
+      mainCpiValue = inflationData.real_cpi_inflation_rate;
+      
+      const { data: historicalInflationData } = await supabase
+        .from('cpi_real_cpi')
+        .select('year, month, real_cpi_inflation_rate')
+        .eq('country_id', selectedCountry.country_id)
+        .order('year', { ascending: false }).order('month', { ascending: false }).limit(36);
+
+      if (historicalInflationData) {
+        chartData = historicalInflationData.map(d => ({
+          period: `${d.year}-${String(d.month).padStart(2, '0')}-01`,
+          value: d.real_cpi_inflation_rate ?? 0
+        })).reverse();
+      }
+    }
+  }
+  
+  // --- 3. OBTENCIÓN DE DATOS PARA LA NUEVA GRÁFICA (COMPARACIÓN DE PRECIOS) ---
+  const { data: priceComparisonData, error: rpcError } = await supabase.rpc('get_latest_prices_by_country', {
+    p_country_id: parseInt(selectedCountryId)
+  });
+  if (rpcError) console.error("Error fetching price comparison data:", rpcError);
+
+  return (
+    <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 bg-gray-100">
+      <div className="w-full max-w-6xl space-y-12">
+        {/* ... (Tu JSX se mantiene igual que en el archivo project-code.txt) ... */}
+        {/* SECCIÓN 1: TÍTULO Y SELECTOR DE PAÍS */}
+        <div className="text-center bg-white p-6 rounded-lg shadow-lg">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-800">
+            Índice Real de Precios al Consumidor
+          </h1>
+          {countries && <CountrySelector countries={countries} selectedCountryId={selectedCountryId} />}
+          <p className="text-xl sm:text-2xl text-blue-600 font-semibold">
+            {selectedCountry?.country_name}: {mainCpiValue !== null ? `${mainCpiValue.toFixed(2)}% anual` : 'Calculando datos...'}
+          </p>
+        </div>
+
+        {/* SECCIÓN 2: GRÁFICA DE INFLACIÓN */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl font-bold mb-4 text-gray-700">Evolución de la Inflación Mensual</h2>
+          {chartData.length > 0 ? (
+            <CpiChart data={chartData} />
+          ) : (
+            <div className="text-center text-gray-500 py-16">
+              <p>Los datos de inflación para este país se están procesando.</p>
+            </div>
+          )}
+        </div>
+
+        {/* SECCIÓN 3: NUEVA GRÁFICA DE COMPARACIÓN DE PRECIOS */}
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
+          <h2 className="text-xl font-bold mb-4 text-gray-700">Comparación de Precios por Comercio</h2>
+          {priceComparisonData && priceComparisonData.length > 0 ? (
+            <ProductPriceComparisonChart data={priceComparisonData as any} />
+          ) : (
+            <div className="text-center text-gray-500 py-16">
+              <p>No hay datos de precios disponibles para comparar en este país.</p>
+              <p>Los voluntarios pueden empezar a subir precios para activar esta gráfica.</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}
+
+file: tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
+file: package.json
+{
+  "name": "cpi-visualization-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.57.2",
+    "d3": "^7.9.0",
+    "next": "15.5.2",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@babel/parser": "^7.28.4",
+    "@babel/traverse": "^7.28.4",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/d3": "^7.4.3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.2",
+    "glob": "^11.0.3",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+
+file: src\app\_components\CountrySelector.tsx
+// file: src/app/_components/CountrySelector.tsx
+'use client';
+
+import { useRouter, useSearchParams } from 'next/navigation';
+
+type Country = {
+  country_id: number;
+  country_name: string;
+};
+
+interface CountrySelectorProps {
+  countries: Country[];
+  selectedCountryId: string;
+}
+
+export default function CountrySelector({ countries, selectedCountryId }: CountrySelectorProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleCountryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCountryId = event.target.value;
+    const currentParams = new URLSearchParams(searchParams.toString());
+    currentParams.set('countryId', newCountryId);
+    router.push(`/?${currentParams.toString()}`);
+  };
+
+  return (
+    <div className="mb-4">
+      <label htmlFor="country-select" className="mr-2 font-medium text-gray-700">
+        Ver información de:
+      </label>
+      <select
+        id="country-select"
+        value={selectedCountryId}
+        onChange={handleCountryChange}
+        className="p-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+      >
+        {countries.map((country) => (
+          <option key={country.country_id} value={country.country_id}>
+            {country.country_name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
+file: src\app\_components\ProductPriceComparisonChart.tsx
+// file: src/app/_components/ProductPriceComparisonChart.tsx
+'use client';
+
+import React, { useEffect, useRef } from 'react';
+import * as d3 from 'd3';
+
+// 1. Definir los tipos de datos para las props del componente
+type PriceComparisonData = {
+  product_name: string;
+  establishment_name: string;
+  price_value: number;
+};
+
+interface ChartProps {
+  data: PriceComparisonData[];
+}
+
+export default function ProductPriceComparisonChart({ data }: ChartProps) {
+  // 2. Usar useRef para obtener una referencia al elemento SVG en el DOM
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  // 3. Usar useEffect para ejecutar la lógica de D3 después de que el componente se monte
+  useEffect(() => {
+    if (!data || data.length === 0 || !svgRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove(); // Limpiar el SVG antes de volver a dibujar
+
+    const width = parseInt(svg.style('width'));
+    const height = 500; // Altura fija para la gráfica
+    const margin = { top: 20, right: 30, bottom: 150, left: 60 }; // Margen inferior grande para nombres de productos
+
+    // 4. Procesar los datos para la gráfica
+    const products = Array.from(new Set(data.map((d) => d.product_name)));
+    const establishments = Array.from(new Set(data.map((d) => d.establishment_name)));
+
+    // 5. Crear las escalas de D3
+    // Escala X para los grupos de productos
+    const x0 = d3.scaleBand()
+      .domain(products)
+      .range([margin.left, width - margin.right])
+      .padding(0.2);
+
+    // Escala X para las barras dentro de cada grupo (establecimientos)
+    const x1 = d3.scaleBand()
+      .domain(establishments)
+      .range([0, x0.bandwidth()])
+      .padding(0.05);
+
+    // Escala Y para los precios
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(data, (d) => d.price_value) ?? 0])
+      .nice()
+      .range([height - margin.bottom, margin.top]);
+
+    // Escala de colores para los establecimientos
+    const color = d3.scaleOrdinal(d3.schemeCategory10).domain(establishments);
+
+    // 6. Dibujar los Ejes
+    svg.append('g')
+      .attr('transform', `translate(0, ${height - margin.bottom})`)
+      .call(d3.axisBottom(x0))
+      .selectAll('text') // Rotar etiquetas para que no se superpongan
+      .attr('transform', 'rotate(-45)')
+      .style('text-anchor', 'end');
+
+    svg.append('g')
+      .attr('transform', `translate(${margin.left}, 0)`)
+      .call(d3.axisLeft(y).tickFormat(d => `$${d}`));
+
+    // 7. Dibujar las barras agrupadas
+    const productGroup = svg.selectAll('.product-group')
+      .data(d3.group(data, d => d.product_name))
+      .join('g')
+        .attr('class', 'product-group')
+        .attr('transform', d => `translate(${x0(d)!}, 0)`);
+
+    productGroup.selectAll('rect')
+      .data(d => d[14])
+      .join('rect')
+        .attr('x', d => x1(d.establishment_name)!)
+        .attr('y', d => y(d.price_value))
+        .attr('width', x1.bandwidth())
+        .attr('height', d => height - margin.bottom - y(d.price_value))
+        .attr('fill', d => color(d.establishment_name));
+    
+    // 8. Crear la Leyenda
+    const legend = svg.append('g')
+      .attr('font-family', 'sans-serif')
+      .attr('font-size', 10)
+      .attr('text-anchor', 'start')
+      .selectAll('g')
+      .data(establishments)
+      .join('g')
+      .attr('transform', (d, i) => `translate(0, ${margin.top + i * 20})`);
+
+    legend.append('rect')
+      .attr('x', width - margin.right - 18)
+      .attr('width', 18)
+      .attr('height', 18)
+      .attr('fill', color);
+
+    legend.append('text')
+      .attr('x', width - margin.right - 24)
+      .attr('y', 9.5)
+      .attr('dy', '0.35em')
+      .style('text-anchor', 'end')
+      .text(d => d);
+
+  }, [data]);
+
+  return <svg ref={svgRef} className="w-full h-[500px]"></svg>;
+}

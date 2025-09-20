@@ -1,0 +1,72 @@
+{
+  "components": [
+    {
+      "name": "middleware",
+      "file": "src\\middleware.ts",
+      "type": "named export"
+    },
+    {
+      "name": "HomePage",
+      "file": "src\\app\\page.tsx",
+      "type": "default export function"
+    },
+    {
+      "name": "RootLayout",
+      "file": "src\\app\\layout.tsx",
+      "type": "default export function"
+    },
+    {
+      "name": "ProductPriceComparisonChart",
+      "file": "src\\app\\_components\\ProductPriceComparisonChart.tsx",
+      "type": "default export function"
+    },
+    {
+      "name": "CpiChart",
+      "file": "src\\app\\_components\\CpiChart.tsx",
+      "type": "default export function"
+    },
+    {
+      "name": "CountrySelector",
+      "file": "src\\app\\_components\\CountrySelector.tsx",
+      "type": "default export function"
+    },
+    {
+      "name": "createClient",
+      "file": "src\\app\\lib\\supabase\\server.ts",
+      "type": "named export"
+    },
+    {
+      "name": "updateSession",
+      "file": "src\\app\\lib\\supabase\\middleware.ts",
+      "type": "named export"
+    },
+    {
+      "name": "createClient",
+      "file": "src\\app\\lib\\supabase\\client.ts",
+      "type": "named export"
+    }
+  ],
+  "hooks": [],
+  "layouts": [
+    {
+      "name": "layout",
+      "file": "src\\app\\layout.tsx"
+    }
+  ],
+  "libraries": [
+    "next/server",
+    "next/headers",
+    "next",
+    "next/font/google",
+    "react",
+    "d3",
+    "next/navigation",
+    "@supabase/ssr"
+  ],
+  "utilities": [
+    "server.ts",
+    "middleware.ts",
+    "client.ts"
+  ],
+  "projectStructure": {}
+}

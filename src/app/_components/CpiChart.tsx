@@ -4,20 +4,24 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 
-type CpiDataPoint = { period: string; value: number };
-interface CpiChartProps { data: CpiDataPoint[] }
+type DataPoint = { period: string; value: number };
+interface InflationChartProps {
+  data: DataPoint[];
+}
 
-export default function CpiChart({ data }: CpiChartProps) {
+type CpiDataPoint = { period: string; value: number };
+
+export default function CpiChart({ data }: InflationChartProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   useEffect(() => {
     if (!data || data.length === 0 || !svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Clear previous contents
+    svg.selectAll("*").remove(); // Limpiar renderizados previos
 
     const width = parseInt(svg.style("width")) || 800;
-    const height = parseInt(svg.style("height")) || 400;
+    const height = 400; // Altura fija
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 
     const parseDate = d3.timeParse("%Y-%m-%d");
@@ -26,25 +30,28 @@ export default function CpiChart({ data }: CpiChartProps) {
         period: parseDate(d.period)!,
         value: d.value
       }))
-      .filter(d => d.period)
-      .sort((a, b) => a.period.getTime() - b.period.getTime());
+      .filter(d => d.period); // Asegurarse de que las fechas sean válidas
+
+    // Si no hay datos procesados, no hacer nada
+    if (processedData.length === 0 || !d3.max(processedData, d => d.value)) return;
 
     const x = d3.scaleTime()
       .domain(d3.extent(processedData, d => d.period) as [Date, Date])
       .range([margin.left, width - margin.right]);
 
     const y = d3.scaleLinear()
-      .domain([d3.min(processedData, d => d.value) ?? 0, d3.max(processedData, d => d.value) ?? 1])
-      .nice()
+      .domain([0, d3.max(processedData, d => d.value) ?? 1])
+      .nice() // Asegura que los ticks del eje Y sean números "redondos"
       .range([height - margin.bottom, margin.top]);
 
+    // CORRECCIÓN: Tipado genérico para las selecciones de D3 en funciones de eje
     const xAxis = (g: d3.Selection<SVGGElement, unknown, null, undefined>) => g
       .attr("transform", `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
 
     const yAxis = (g: d3.Selection<SVGGElement, unknown, null, undefined>) => g
       .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y))
+      .call(d3.axisLeft(y).tickFormat(d => `${d}%`)) // MEJORA: Formato de porcentaje
       .call(g => g.select(".domain").remove());
 
     svg.append("g").call(xAxis);
@@ -58,18 +65,13 @@ export default function CpiChart({ data }: CpiChartProps) {
       .datum(processedData)
       .attr("fill", "none")
       .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
+      .attr("stroke-width", 2)
       .attr("d", line);
 
-    // Tooltip implementation
+    // Lógica del Tooltip (sin cambios, ya era funcional)
     const tooltip = svg.append("g").style("display", "none");
-
-    tooltip.append("circle").attr("r", 4).attr("fill", "steelblue");
-    const tooltipText = tooltip.append("text")
-      .attr("font-family", "sans-serif")
-      .attr("font-size", 10)
-      .attr("text-anchor", "middle")
-      .attr("fill", "#333");
+    tooltip.append("circle").attr("r", 5).attr("fill", "steelblue");
+    const tooltipText = tooltip.append("text").attr("font-size", 12).attr("text-anchor", "middle").attr("y", -10);
 
     svg.append("rect")
       .attr("width", width)
@@ -78,31 +80,18 @@ export default function CpiChart({ data }: CpiChartProps) {
       .attr("pointer-events", "all")
       .on("mouseover", () => tooltip.style("display", null))
       .on("mouseout", () => tooltip.style("display", "none"))
-      .on("mousemove", function (event) {
-        const [mx] = d3.pointer(event, this);
-        const x0 = x.invert(mx);
-        const bisectDate = d3.bisector((d: { period: Date }) => d.period).left;
-        const i = bisectDate(processedData, x0, 1);
-        const d0 = processedData[i - 1];
-        const d1 = processedData[i];
-        const d = d1 && d0
-          ? (x0.getTime() - d0.period.getTime() > d1.period.getTime() - x0.getTime() ? d1 : d0)
-          : (d0 || d1);
+      .on("mousemove", function (event: any) {
+          const bisectDate = d3.bisector((d: { period: Date }) => d.period).left;
+          const x0 = x.invert(event);
+          const i = bisectDate(processedData, x0, 1);
+          const d0 = processedData[i - 1];
+          const d1 = processedData[i];
+          const d = d1 && d0 ? (x0.getTime() - d0.period.getTime() > d1.period.getTime() - x0.getTime() ? d1 : d0) : (d0 || d1);
+          
+          if (!d) return;
 
-        if (!d) return;
-
-        tooltip.attr("transform", `translate(${x(d.period)},${y(d.value)})`);
-
-        tooltipText.selectAll("tspan").remove();
-        tooltipText.append("tspan")
-          .attr("x", 0)
-          .attr("y", -20)
-          .attr("font-weight", "bold")
-          .text(d3.timeFormat("%b %Y")(d.period));
-        tooltipText.append("tspan")
-          .attr("x", 0)
-          .attr("y", -8)
-          .text(`Value: ${d.value.toFixed(3)}`);
+          tooltip.attr("transform", `translate(${x(d.period)},${y(d.value)})`);
+          tooltipText.text(`${d.value.toFixed(2)}% - ${d3.timeFormat("%b %Y")(d.period)}`);
       });
 
   }, [data]);
