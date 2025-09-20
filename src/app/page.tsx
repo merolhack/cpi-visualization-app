@@ -39,7 +39,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
 
     if (inflationError) console.error('Error fetching inflation data:', inflationError);
     else if (inflationData && inflationData.length > 0) {
-      mainCpiValue = inflationData.real_cpi_inflation_rate;
+      mainCpiValue = inflationData[0].real_cpi_inflation_rate;
       
       const { data: historicalInflationData } = await supabase
         .from('cpi_real_cpi')
