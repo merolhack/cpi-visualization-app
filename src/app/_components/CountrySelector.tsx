@@ -9,8 +9,8 @@ type Country = {
 };
 
 interface CountrySelectorProps {
-  countries: Country[];
-  selectedCountryId: string;
+  countries?: Country[];
+  selectedCountryId?: string;
 }
 
 export default function CountrySelector({ countries, selectedCountryId }: CountrySelectorProps) {
@@ -23,6 +23,10 @@ export default function CountrySelector({ countries, selectedCountryId }: Countr
     currentParams.set('countryId', newCountryId);
     router.push(`/?${currentParams.toString()}`);
   };
+
+  if (!countries || countries.length === 0) {
+    return <div className="text-gray-500">Cargando países...</div>;
+  }
 
   return (
     <div className="mb-4">

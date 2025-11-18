@@ -1,51 +1,53 @@
-// file: src/app/page.tsx
+// src/app/page.tsx
 import { createClient } from '@/app/lib/supabase/server';
-import { headers } from 'next/headers'; // <-- PASO 1: Importar 'headers'
-import CpiChart from './_components/CpiChart';
-import CountrySelector from './_components/CountrySelector';
-import ProductPriceComparisonChart from './_components/ProductPriceComparisonChart';
+import { headers } from 'next/headers';
+import CpiChart from '@/app/_components/CpiChart';
+import CountrySelector from '@/app/_components/CountrySelector';
+import ProductPriceComparisonChart from '@/app/_components/ProductPriceComparisonChart';
+import Navbar from '@/app/_components/Navbar';
 
 export const dynamic = 'force-dynamic';
 
-// Tipos de datos (se mantienen igual)
-type InflationDataPoint = { year: number; month: number; real_cpi_inflation_rate: number | null };
-type PriceComparisonData = { product_name: string; establishment_name: string; price_value: number };
-
-export default async function HomePage({ searchParams }: { searchParams: Promise<{ [key: string]: string | undefined }> }) {
-  // Await searchParams before using it
+export default async function HomePage({ 
+  searchParams 
+}: { 
+  searchParams: Promise<{ [key: string]: string | undefined }> 
+}) {
   const resolvedSearchParams = await searchParams;
-  headers(); // <-- PASO 2: Llamar a la función headers()
+  headers();
 
   const supabase = await createClient();
 
-  // --- 1. GESTIÓN DEL PAÍS SELECCIONADO ---
-  const { data: countries, error: countriesError } = await supabase.from('cpi_countries').select('country_id, country_name');
-  if (countriesError) console.error("Error fetching countries:", countriesError);
-  
-  // Use resolvedSearchParams instead of searchParams
+  const { data: countries, error: countriesError } = await supabase
+    .from('cpi_countries')
+    .select('country_id, country_name');
+
   const selectedCountryId = resolvedSearchParams?.countryId ?? '1';
   const selectedCountry = countries?.find(c => c.country_id.toString() === selectedCountryId);
 
-  // --- 2. OBTENCIÓN DE DATOS PARA LA GRÁFICA PRINCIPAL (INFLACIÓN) ---
+  // Obtener datos de inflación
   let mainCpiValue: number | null = null;
   let chartData: { period: string, value: number }[] = [];
 
   if (selectedCountry) {
-    const { data: inflationData, error: inflationError } = await supabase
+    const { data: inflationData } = await supabase
       .from('cpi_real_cpi')
       .select('year, month, real_cpi_inflation_rate')
       .eq('country_id', selectedCountry.country_id)
-      .order('year', { ascending: false }).order('month', { ascending: false }).limit(1);
+      .order('year', { ascending: false })
+      .order('month', { ascending: false })
+      .limit(1);
 
-    if (inflationError) console.error('Error fetching inflation data:', inflationError);
-    else if (inflationData && inflationData.length > 0) {
+    if (inflationData && inflationData.length > 0) {
       mainCpiValue = inflationData[0].real_cpi_inflation_rate;
       
       const { data: historicalInflationData } = await supabase
         .from('cpi_real_cpi')
         .select('year, month, real_cpi_inflation_rate')
         .eq('country_id', selectedCountry.country_id)
-        .order('year', { ascending: false }).order('month', { ascending: false }).limit(36);
+        .order('year', { ascending: false })
+        .order('month', { ascending: false })
+        .limit(36);
 
       if (historicalInflationData) {
         chartData = historicalInflationData.map(d => ({
@@ -55,58 +57,101 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       }
     }
   }
-  
-  // --- 3. OBTENCIÓN DE DATOS PARA LA NUEVA GRÁFICA (COMPARACIÓN DE PRECIOS) ---
-  console.log(`[DEBUG] Invocando RPC 'get_latest_prices_by_country' para el país con ID: ${selectedCountryId}`);
-  const { data: priceComparisonData, error: rpcError } = await supabase.rpc('get_latest_prices_by_country', {
+
+  // Obtener datos de comparación de precios
+  const { data: priceComparisonData } = await supabase.rpc('get_latest_prices_by_country', {
     p_country_id: parseInt(selectedCountryId)
   });
-  if (rpcError) {
-    console.error("[DEBUG] Error al invocar la función RPC:", JSON.stringify(rpcError, null, 2));
-  } else {
-    console.log("[DEBUG] Datos recibidos de la función RPC:", priceComparisonData);
-    console.log(`[DEBUG] Número de registros recibidos: ${priceComparisonData?.length ?? 0}`);
-  }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 sm:p-8 bg-gray-100">
-      <div className="w-full max-w-6xl space-y-12">
-        {/* ... (Tu JSX se mantiene igual que en el archivo project-code.txt) ... */}
-        {/* SECCIÓN 1: TÍTULO Y SELECTOR DE PAÍS */}
-        <div className="text-center bg-white p-6 rounded-lg shadow-lg">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2 text-gray-800">
+    <main className="min-h-screen bg-gray-50">
+      <Navbar />
+      
+      <div className="container mx-auto px-4 py-8">
+        <header className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Índice Real de Precios al Consumidor
           </h1>
-          {countries && <CountrySelector countries={countries} selectedCountryId={selectedCountryId} />}
-          <p className="text-xl sm:text-2xl text-blue-600 font-semibold">
-            {selectedCountry?.country_name}: {mainCpiValue !== null ? `${mainCpiValue.toFixed(2)}% anual` : 'Calculando datos...'}
+          <p className="text-xl text-gray-600">
+            Datos actualizados por voluntarios en tiempo real
           </p>
-        </div>
+        </header>
 
-        {/* SECCIÓN 2: GRÁFICA DE INFLACIÓN */}
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold mb-4 text-gray-700">Evolución de la Inflación Mensual</h2>
-          {chartData.length > 0 ? (
-            <CpiChart data={chartData} />
-          ) : (
-            <div className="text-center text-gray-500 py-16">
-              <p>Los datos de inflación para este país se están procesando.</p>
-            </div>
+        {/* Selector de país */}
+        <section className="mb-8">
+          {countries && (
+            <CountrySelector 
+              countries={countries} 
+              selectedCountryId={selectedCountryId} 
+            />
           )}
-        </div>
+        </section>
 
-        {/* SECCIÓN 3: NUEVA GRÁFICA DE COMPARACIÓN DE PRECIOS */}
-        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
-          <h2 className="text-xl font-bold mb-4 text-gray-700">Comparación de Precios por Comercio</h2>
-          {priceComparisonData && priceComparisonData.length > 0 ? (
-            <ProductPriceComparisonChart data={priceComparisonData as any} />
-          ) : (
-            <div className="text-center text-gray-500 py-16">
-              <p>No hay datos de precios disponibles para comparar en este país.</p>
-              <p>Los voluntarios pueden empezar a subir precios para activar esta gráfica.</p>
+        {/* Tarjeta con valor principal */}
+        {selectedCountry && (
+          <section className="mb-12">
+            <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+              <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+                {selectedCountry.country_name}
+              </h2>
+              <p className="text-5xl font-bold text-blue-600">
+                {mainCpiValue !== null ? `${mainCpiValue.toFixed(2)}%` : '—'}
+              </p>
+              <p className="text-gray-600 mt-2">Inflación anual</p>
             </div>
-          )}
-        </div>
+          </section>
+        )}
+
+        {/* Gráfica de inflación */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+            Evolución de la Inflación (últimos 36 meses)
+          </h2>
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            {chartData.length > 0 ? (
+              <CpiChart data={chartData} />
+            ) : (
+              <p className="text-gray-500 text-center py-16">
+                Los datos de inflación para este país se están procesando.
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Gráfica de comparación de precios */}
+        <section className="mb-12">
+          <h2 className="text-2xl font-semibold mb-6 text-gray-800">
+            Comparación de Precios por Comercio
+          </h2>
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            {priceComparisonData && priceComparisonData.length > 0 ? (
+              <ProductPriceComparisonChart data={priceComparisonData as any} />
+            ) : (
+              <div className="text-center text-gray-500 py-16">
+                <p>No hay datos de precios disponibles para comparar en este país.</p>
+                <p className="text-sm mt-2">
+                  Los voluntarios pueden empezar a subir precios para activar esta gráfica.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Llamado a la acción */}
+        <section className="bg-blue-50 rounded-lg p-8 text-center">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            ¿Quieres contribuir?
+          </h3>
+          <p className="text-gray-600 mb-6">
+            Únete como voluntario y ayuda a mantener datos precisos de precios al consumidor.
+          </p>
+          <a
+            href="/auth/register"
+            className="inline-block px-6 py-3 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 transition-colors"
+          >
+            Registrarse como Voluntario
+          </a>
+        </section>
       </div>
     </main>
   );
