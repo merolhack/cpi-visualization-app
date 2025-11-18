@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/app/lib/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { User, AuthChangeEvent, Session } from '@supabase/supabase-js'; // ✅ Importa AuthChangeEvent
 
 export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
@@ -11,7 +11,6 @@ export default function Navbar() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Obtener usuario inicial
     const getInitialUser = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
@@ -25,15 +24,16 @@ export default function Navbar() {
 
     getInitialUser();
 
-    // Escuchar cambios de auth
+    // ✅ Añade tipo explícito a 'event'
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      async (event: AuthChangeEvent, session: Session | null) => { // ✅ CORREGIDO
+        console.log('Navbar - Auth event:', event, session?.user?.email);
         setUser(session?.user ?? null);
       }
     );
 
     return () => subscription.unsubscribe();
-  }, []); // Elimina 'supabase' de dependencias
+  }, []);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -88,7 +88,6 @@ export default function Navbar() {
                 </a>
               </>
             )}
-            {console.log('Navbar render - user:', user, 'loading:', loading)}
           </div>
         </div>
       </div>

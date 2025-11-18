@@ -60,6 +60,7 @@ export default function AddProductForm() {
     }
   }, [formData.countryId]);
 
+  // src/app/_components/AddProductForm.tsx
   const loadInitialData = async () => {
     try {
       const [countriesRes, categoriesRes] = await Promise.all([
@@ -70,15 +71,27 @@ export default function AddProductForm() {
       if (countriesRes.error) throw countriesRes.error;
       if (categoriesRes.error) throw categoriesRes.error;
 
-      setCountries(countriesRes.data?.map(c => ({ id: c.country_id, name: c.country_name })) || []);
-      setCategories(categoriesRes.data?.map(c => ({ id: c.category_id, name: c.category_name })) || []);
+      // ✅ Añade tipos explícitos
+      setCountries(
+        countriesRes.data?.map((c: { country_id: number; country_name: string }) => ({
+          id: c.country_id,
+          name: c.country_name
+        })) || []
+      );
+      
+      setCategories(
+        categoriesRes.data?.map((c: { category_id: number; category_name: string }) => ({
+          id: c.category_id,
+          name: c.category_name
+        })) || []
+      );
     } catch (err) {
       console.error('Error loading initial data:', err);
       setError('Error al cargar los datos iniciales');
     }
   };
 
-  const loadLocations = async (countryId: string) => {
+    const loadLocations = async (countryId: string) => {
     try {
       const { data, error } = await supabase
         .from('cpi_locations')
@@ -87,7 +100,14 @@ export default function AddProductForm() {
         .order('location_name');
       
       if (error) throw error;
-      setLocations(data?.map(l => ({ id: l.location_id, name: l.location_name })) || []);
+      
+      // ✅ Tipos explícitos
+      setLocations(
+        data?.map((l: { location_id: number; location_name: string }) => ({
+          id: l.location_id,
+          name: l.location_name
+        })) || []
+      );
     } catch (err) {
       console.error('Error loading locations:', err);
       setError('Error al cargar los lugares');
@@ -103,7 +123,14 @@ export default function AddProductForm() {
         .order('establishment_name');
       
       if (error) throw error;
-      setEstablishments(data?.map(e => ({ id: e.establishment_id, name: e.establishment_name })) || []);
+      
+      // ✅ Tipos explícitos
+      setEstablishments(
+        data?.map((e: { establishment_id: number; establishment_name: string }) => ({
+          id: e.establishment_id,
+          name: e.establishment_name
+        })) || []
+      );
     } catch (err) {
       console.error('Error loading establishments:', err);
       setError('Error al cargar los establecimientos');
