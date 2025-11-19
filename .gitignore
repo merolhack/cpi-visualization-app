@@ -42,3 +42,13 @@ next-env.d.ts
 
 # local env files
 .env.local
+
+.vscode
+
+# Supabase local development files
+supabase/.temp/
+supabase/.env.local
+supabase/.env.*.local
+
+# Optional: ignore the entire local development volume if you're not using it
+supabase/docker-volumes/

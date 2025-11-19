@@ -115,23 +115,6 @@ function LoginFormContent() {
           type="submit"
           disabled={loading}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
-        >
-          {loading ? 'Ingresando...' : 'Ingresar'}
-        </button>
-      </form>
-
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <p className="text-center text-sm text-gray-600">
-          ¿No tienes cuenta?{' '}
-          <a href="/auth/register" className="text-blue-600 hover:underline font-medium">
-            Regístrate aquí
-          </a>
-        </p>
-      </div>
-    </div>
-  );
-}
-
 // ✅ Componente principal con Suspense
 export default function LoginPage() {
   return (
