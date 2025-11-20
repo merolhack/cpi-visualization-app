@@ -54,3 +54,11 @@ supabase/.env.*.local
 supabase/docker-volumes/
 
 schema_backup.sql
+
+# Add these lines to your .gitignore
+supabase/INSPECT_*.sql
+supabase/UPDATE_VAULT_SECRETS*.sql
+supabase/CLEANUP_ORPHANED_USER.sql
+test-results.json
+test_output.txt
+register_test_output.txt
