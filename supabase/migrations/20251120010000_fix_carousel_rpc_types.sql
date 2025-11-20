@@ -1,4 +1,7 @@
--- Función para obtener productos con cambios significativos de precio para el carrusel
+-- Drop the existing function first
+DROP FUNCTION IF EXISTS public.get_products_with_significant_changes();
+
+-- Recreate with correct type casting
 CREATE OR REPLACE FUNCTION public.get_products_with_significant_changes()
 RETURNS TABLE (
     product_id BIGINT,
@@ -49,7 +52,7 @@ BEGIN
         pc.current_price,
         pc.previous_price,
         pc.change_percentage as price_change_percentage,
-        pc.last_update_date::timestamp with time zone,
+        pc.last_update_date::TIMESTAMP WITH TIME ZONE,
         est.establishment_name,
         loc.location_name
     FROM 
