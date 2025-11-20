@@ -45,7 +45,7 @@ export default async function RetirosPage() {
 
     const { error } = await supabase.rpc('request_withdrawal', {
       p_amount: amount,
-      p_polygon_address: address
+      p_wallet_address: address
     });
 
     if (error) {
@@ -149,25 +149,25 @@ export default async function RetirosPage() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {withdrawalHistory && withdrawalHistory.length > 0 ? (
                       withdrawalHistory.map((withdrawal: any) => (
-                        <tr key={withdrawal.withdrawal_id}>
+                        <tr key={withdrawal.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(withdrawal.request_date).toLocaleDateString()}
+                            {new Date(withdrawal.created_at).toLocaleDateString()}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-900">
-                            <div className="max-w-xs truncate" title={withdrawal.concept}>
-                              {withdrawal.concept}
+                            <div className="max-w-xs truncate" title="Retiro de puntos">
+                              Retiro a billetera
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {withdrawal.amount} pts
+                            {withdrawal.amount_points} pts
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              withdrawal.status === 'Enviado' 
+                              withdrawal.status === 'processed' 
                                 ? 'bg-green-100 text-green-800' 
                                 : 'bg-yellow-100 text-yellow-800'
                             }`}>
-                              {withdrawal.status}
+                              {withdrawal.status === 'pending' ? 'Pendiente' : 'Procesado'}
                             </span>
                           </td>
                         </tr>

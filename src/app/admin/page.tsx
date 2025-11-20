@@ -4,24 +4,19 @@ export default async function AdminDashboardPage() {
   const supabase = await createClient();
 
   // Obtener estadísticas del sistema
-  const { count: totalVolunteers } = await supabase
-    .from('cpi_volunteers')
-    .select('*', { count: 'exact', head: true });
+  const { data: statsData, error } = await supabase
+    .rpc('get_admin_dashboard_stats');
 
-  const { count: totalProducts } = await supabase
-    .from('cpi_products')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_active_product', true);
+  const stats = Array.isArray(statsData) ? statsData[0] : statsData;
 
-  const { count: totalPrices } = await supabase
-    .from('cpi_prices')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_valid', true);
+  if (error) {
+    console.error('Error fetching admin stats:', error);
+  }
 
-  const { count: pendingWithdrawals } = await supabase
-    .from('cpi_withdrawals')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'Pendiente');
+  const totalVolunteers = stats?.total_volunteers || 0;
+  const totalProducts = stats?.total_products || 0;
+  const totalPrices = stats?.total_prices || 0;
+  const pendingWithdrawals = stats?.pending_withdrawals || 0;
 
   return (
     <div className="p-8">
@@ -36,7 +31,7 @@ export default async function AdminDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Voluntarios Activos</p>
-              <p className="text-3xl font-bold text-blue-600 mt-2">{totalVolunteers || 0}</p>
+              <p className="text-3xl font-bold text-blue-600 mt-2">{totalVolunteers}</p>
             </div>
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +45,7 @@ export default async function AdminDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Productos Activos</p>
-              <p className="text-3xl font-bold text-green-600 mt-2">{totalProducts || 0}</p>
+              <p className="text-3xl font-bold text-green-600 mt-2">{totalProducts}</p>
             </div>
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,7 +59,7 @@ export default async function AdminDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Precios Registrados</p>
-              <p className="text-3xl font-bold text-purple-600 mt-2">{totalPrices || 0}</p>
+              <p className="text-3xl font-bold text-purple-600 mt-2">{totalPrices}</p>
             </div>
             <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,7 +73,7 @@ export default async function AdminDashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Retiros Pendientes</p>
-              <p className="text-3xl font-bold text-orange-600 mt-2">{pendingWithdrawals || 0}</p>
+              <p className="text-3xl font-bold text-orange-600 mt-2">{pendingWithdrawals}</p>
             </div>
             <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
               <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +89,7 @@ export default async function AdminDashboardPage() {
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Acciones Rápidas</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
-            href="/admin/volunteers"
+            href="/admin/voluntarios"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
@@ -109,7 +104,7 @@ export default async function AdminDashboardPage() {
           </a>
 
           <a
-            href="/admin/products"
+            href="/admin/productos"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
@@ -124,7 +119,7 @@ export default async function AdminDashboardPage() {
           </a>
 
           <a
-            href="/admin/withdrawals"
+            href="/admin/retiros"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-3">

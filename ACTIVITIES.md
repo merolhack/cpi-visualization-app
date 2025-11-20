@@ -16,77 +16,109 @@
 - ✅ Gráfica de evolución de inflación (últimos 36 meses)
 - ✅ Gráfica de comparación de precios por comercio
 - ✅ Navbar con navegación según estado de autenticación
+- ✅ Carrusel de productos con cambios significativos de precio
+- ✅ Página de metodología
+- ✅ Página de ayuda para voluntarios
+- ✅ Buscador de productos
 
-### 3. Panel del Voluntario (Parcial)
+### 3. Panel del Voluntario (✅ COMPLETADO)
+
+**Implementado:**
 - ✅ Login y registro
 - ✅ Recuperación de contraseña
 - ✅ Formulario para agregar productos con foto
 - ✅ Protección de rutas autenticadas
-
-### 4. Backend/Crons (Implementados)
-- ✅ Función RPC para registro de voluntarios
-- ✅ Función RPC para agregar productos y precios
-- ✅ Cron para cálculo de inflación de producto (configurado)
-- ✅ Cron para cálculo de IRPC (configurado)
-
----
-- ❌ Mostrar nombre del producto y país
-- ❌ Índice real de precios del producto específico
-- ❌ Gráfica con múltiples líneas (una por combinación comercio/lugar)
-- ❌ Botón "Descargar datos" con acceso a API
-- ❌ Carrusel de evidencias fotográficas
-- ❌ Listado de productos activos con más de 1 línea de precios
-
-### 3. Panel del Voluntario (Muy Incompleto)
-
-**Falta:**
-- ❌ Página principal del panel mostrando:
+- ✅ **Dashboard del voluntario** (`/dashboard`):
   - Saldo de puntos actual
   - Lista de productos que necesitan actualización (>30 días)
-  - Botones de acción (Agregar productos, Retirar puntos)
-- ❌ Página "Actualizar precio" con:
+  - Estadísticas de productos rastreados
+  - Navegación rápida a todas las funcionalidades
+- ✅ **Página "Actualizar precio"** (`/dashboard/update/[trackingId]`):
   - Foto del producto
-  - Historial de últimos 5 precios
+  - Historial de precios
   - Formulario para nuevo precio con foto
   - Opción "Ya no quiero dar seguimiento"
-- ❌ Página "Agregar productos" con:
+  - Sistema de puntos automático al agregar precios
+- ✅ **Página "Agregar productos"** (`/dashboard/add-products`):
   - Filtros por país/lugar/comercio
-  - Lista de productos por rama/categoría
-  - Evitar productos actualizados en últimos 2 meses
-  - Sistema de puntos por actualización
-- ❌ Página "Retirar puntos" con:
+  - Lista de productos disponibles
+  - Evita productos ya rastreados
+  - Agregar múltiples productos a la vez
+- ✅ **Página "Retirar puntos"** (`/dashboard/withdrawals`):
   - Formulario de retiro a dirección Polygon
   - Historial de retiros
+  - Validación de saldo disponible
+- ✅ **Página "Historial"** (`/dashboard/history`):
   - Últimos 100 movimientos de finanzas
-- ❌ Sistema de puntos automático al agregar precios
+  - Exportación a CSV
+  - Cálculo de saldo corriente
 
-### 4. Panel del Webmaster (Parcialmente Implementado)
+### 4. Panel del Webmaster (✅ COMPLETADO)
 
-**Completado:**
+**Implementado:**
 - ✅ Estructura base del panel en `/admin`
 - ✅ Layout con sidebar de navegación
 - ✅ Página principal con estadísticas del sistema
 - ✅ Protección de rutas con autenticación
-- ✅ Navegación a módulos de gestión
+- ✅ **Gestión de voluntarios** (`/admin/voluntarios`):
+  - Lista de todos los voluntarios
+  - Visualización de productos rastreados y puntos
+  - Última actividad
+- ✅ **Gestión de productos** (`/admin/productos`):
+  - Lista de productos con búsqueda
+  - Editar productos (activar/desactivar)
+  - Visualización de imagen, categoría, precios
+- ✅ **Gestión de categorías** (`/admin/categorias`):
+  - Alta de categorías
+  - Lista con conteo de productos
+- ✅ **Gestión de comercios** (`/admin/comercios`):
+  - Lista de establecimientos
+  - Visualización por país y ubicaciones
+- ✅ **Gestión de retiros** (`/admin/retiros`):
+  - Lista de retiros pendientes
+  - Aprobar/rechazar retiros
+  - Reembolso automático en rechazos
 
-**Falta:**
-- ❌ Gestión de voluntarios:
-  - Alta de nuevos voluntarios
-  - Editar voluntarios (nombre, whatsapp, país, suspender)
-  - Gestionar retiros de puntos
-- ❌ Gestión de productos:
-  - Alta de productos
-  - Editar productos (nombre, categoría, foto, comercios, activar/desactivar)
-- ❌ Gestión de categorías:
-  - Alta de categorías con rama asociada
-- ❌ Gestión de comercios:
-  - Alta de comercios
-  - Editar comercios (nombre, categorías que vende)
-- ❌ Administrar criterios de cálculo:
-  - Agregar criterios (nombre, descripción, importancia, ponderación)
-  - Editar criterios existentes
+### 5. Funciones RPC (✅ COMPLETADAS)
 
-### 5. Funciones RPC Faltantes
+**Panel de Voluntarios:**
+- ✅ `get_volunteer_dashboard_stats()` - Estadísticas del dashboard
+- ✅ `get_products_needing_update_by_volunteer()` - Productos pendientes
+- ✅ `get_available_products_for_tracking()` - Productos disponibles
+- ✅ `stop_tracking_product()` - Desactivar rastreo
+- ✅ `request_withdrawal()` - Solicitar retiro
+- ✅ `get_withdrawal_history()` - Historial de retiros
+- ✅ `get_finance_history()` - Historial financiero
+- ✅ `get_product_price_history()` - Historial de precios
+- ✅ `update_product_price()` - Actualizar precio con puntos
+- ✅ `add_products_to_tracking()` - Agregar productos
+
+**Panel de Webmaster:**
+- ✅ `get_admin_dashboard_stats()` - Estadísticas del sistema
+- ✅ `get_volunteers()` - Lista de voluntarios
+- ✅ `get_all_products_admin()` - Lista de productos
+- ✅ `toggle_product_status()` - Activar/desactivar productos
+- ✅ `get_pending_withdrawals()` - Retiros pendientes
+- ✅ `process_withdrawal()` - Procesar retiros
+- ✅ `get_all_categories_admin()` - Lista de categorías
+- ✅ `create_category()` - Crear categoría
+- ✅ `get_all_establishments_admin()` - Lista de establecimientos
+
+**Automatización:**
+- ✅ `recalculate_daily_cpi()` - Recalcular CPI diario
+- ✅ `get_volunteers_needing_reminders()` - Voluntarios para recordatorios
+
+### 6. Backend/Crons
+- ✅ Función RPC para registro de voluntarios
+- ✅ Función RPC para agregar productos y precios
+- ✅ Cron para cálculo de inflación de producto (configurado)
+- ✅ Cron para cálculo de IRPC (configurado)
+- ✅ Funciones helper para tareas automatizadas
+- ✅ Documentación para implementar cron jobs
+
+---
+
+## ⚠️ Componentes Pendientes (Fuera del Alcance Actual)
 
 **SQL/Supabase:**
 - ❌ Función para obtener productos que necesitan actualización por voluntario

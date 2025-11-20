@@ -10,8 +10,17 @@ interface FinanceRecord {
   current_balance: number;
 }
 
-export default function HistoryTable({ initialData }: { initialData: FinanceRecord[] }) {
-  const [data] = useState<FinanceRecord[]>(initialData);
+export default function HistoryTable({ initialData, initialBalance }: { initialData: FinanceRecord[], initialBalance: number }) {
+  // Calculate running balance
+  const dataWithBalance = initialData.map((record, index) => {
+    let balance = initialBalance;
+    for (let i = 0; i < index; i++) {
+      balance -= initialData[i].amount;
+    }
+    return { ...record, current_balance: balance };
+  });
+
+  const [data] = useState<FinanceRecord[]>(dataWithBalance);
 
   const downloadCSV = () => {
     if (!data || data.length === 0) return;

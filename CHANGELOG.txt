@@ -5,6 +5,167 @@ Todos los cambios notables en el proyecto IRPC (Índice Real de Precios al Consu
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-11-20
+**Estado:** Listo para despliegue - Requiere aplicar migraciones de Supabase.
+
+Este lanzamiento mayor completa la implementación de todas las funcionalidades faltantes del sistema IRPC, incluyendo el Panel de Voluntarios completo, Panel de Webmaster, y automatización backend.
+
+### Añadido
+
+#### Base de Datos - Migraciones de Supabase
+
+**Panel de Voluntarios:**
+- **Migración `20251121000000_volunteer_rpcs.sql`**: 7 funciones RPC para gestión de voluntarios
+  - `get_volunteer_dashboard_stats()`: Estadísticas del dashboard (puntos, productos rastreados, actualizaciones pendientes)
+  - `get_products_needing_update_by_volunteer()`: Lista de productos que requieren actualización (>30 días)
+  - `get_available_products_for_tracking()`: Productos disponibles para rastrear por ubicación/establecimiento
+  - `stop_tracking_product()`: Desactiva el rastreo de un producto
+  - `request_withdrawal()`: Crea solicitud de retiro y deduce puntos
+  - `get_withdrawal_history()`: Historial de retiros del usuario
+  - `get_finance_history()`: Historial de transacciones de puntos
+
+- **Migración `20251121000003_volunteer_update_rpcs.sql`**: Funciones para actualización de precios
+  - `get_product_price_history()`: Historial de precios de un producto rastreado
+  - `update_product_price()`: Registra nuevo precio y otorga puntos si es elegible
+
+- **Migración `20251121000004_volunteer_add_tracking_rpc.sql`**: Función para agregar productos
+  - `add_products_to_tracking()`: Agrega múltiples productos a la lista de rastreo del usuario
+
+**Panel de Webmaster:**
+- **Migración `20251121000001_admin_rpcs.sql`**: 9 funciones RPC para administración
+  - `get_admin_dashboard_stats()`: Estadísticas del sistema (voluntarios, productos, precios, retiros pendientes)
+  - `get_volunteers()`: Lista de voluntarios activos con estadísticas
+  - `get_all_products_admin()`: Lista paginada de productos con búsqueda
+  - `toggle_product_status()`: Activa/desactiva productos
+  - `get_pending_withdrawals()`: Solicitudes de retiro pendientes
+  - `process_withdrawal()`: Aprueba/rechaza retiros con lógica de reembolso
+  - `get_all_categories_admin()`: Lista de categorías con conteo de productos
+  - `create_category()`: Crea nueva categoría de producto
+  - `get_all_establishments_admin()`: Lista de establecimientos con conteo de ubicaciones
+
+**Automatización Backend:**
+- **Migración `20251121000002_crons.sql`**: Funciones helper para tareas automatizadas
+  - `recalculate_daily_cpi()`: Recalcula el CPI diario
+  - `get_volunteers_needing_reminders()`: Identifica voluntarios que necesitan recordatorios
+  - Documentación completa para implementar cron jobs vía Supabase Edge Functions o servicios externos
+
+#### Frontend - Panel de Voluntarios
+
+- **Dashboard de Voluntarios** (`src/app/dashboard/page.tsx`):
+  - Muestra estadísticas en tiempo real usando `get_volunteer_dashboard_stats`
+  - Lista de productos que necesitan actualización usando `get_products_needing_update_by_volunteer`
+  - Visualización de saldo de puntos y rango
+  - Navegación rápida a todas las funcionalidades
+
+- **Página de Actualización de Precios** (`src/app/dashboard/update/[trackingId]/page.tsx`):
+  - Formulario para actualizar precio de producto rastreado
+  - Historial de precios del producto
+  - Acción de servidor `updatePrice` que llama a `update_product_price` RPC
+  - Acción de servidor `stopTracking` que llama a `stop_tracking_product` RPC
+  - Validación de datos y manejo de errores
+
+- **Página de Agregar Productos** (`src/app/dashboard/add-products/page.tsx`):
+  - Componente cliente `AddTrackingClient` para búsqueda de productos
+  - Filtros por país, ubicación y establecimiento
+  - Usa `get_available_products_for_tracking` RPC
+  - Agrega productos en lote vía `add_products_to_tracking` RPC
+  - Indicadores visuales de productos ya rastreados
+
+- **Página de Retiros** (`src/app/dashboard/withdrawals/page.tsx`):
+  - Visualización de saldo de puntos disponible
+  - Formulario de solicitud de retiro con validación de dirección Polygon
+  - Historial de retiros usando `get_withdrawal_history` RPC
+  - Estados de retiro (pendiente/procesado)
+  - Validación de saldo suficiente
+
+- **Página de Historial** (`src/app/dashboard/history/page.tsx`):
+  - Componente cliente `HistoryTable` para mostrar transacciones
+  - Usa `get_finance_history` RPC
+  - Cálculo de saldo corriente para cada transacción
+  - Funcionalidad de exportación a CSV
+  - Visualización de últimos 100 movimientos
+
+#### Frontend - Panel de Webmaster
+
+- **Dashboard de Administración** (`src/app/admin/page.tsx`):
+  - Estadísticas del sistema en tiempo real usando `get_admin_dashboard_stats` RPC
+  - Tarjetas de métricas (voluntarios, productos, precios, retiros pendientes)
+  - Enlaces de acción rápida a todas las secciones administrativas
+  - Diseño responsivo con iconografía clara
+
+- **Gestión de Voluntarios** (`src/app/admin/voluntarios/page.tsx`):
+  - Lista de todos los voluntarios usando `get_volunteers` RPC
+  - Muestra productos rastreados, puntos totales y última actividad
+  - IDs de usuario truncados para privacidad
+  - Tabla ordenable y filtrable
+
+- **Gestión de Productos** (`src/app/admin/productos/page.tsx`):
+  - Componente cliente `ProductListClient` para gestión interactiva
+  - Lista de productos usando `get_all_products_admin` RPC
+  - Toggle de estado activo/inactivo vía `toggle_product_status` RPC
+  - Muestra imagen, categoría, conteo de precios y última actualización
+  - Búsqueda y paginación
+
+- **Gestión de Retiros** (`src/app/admin/retiros/page.tsx`):
+  - Componente cliente `WithdrawalListClient` para procesamiento
+  - Lista de retiros pendientes usando `get_pending_withdrawals` RPC
+  - Aprobación/rechazo vía `process_withdrawal` RPC
+  - Reembolso automático en caso de rechazo
+  - Confirmación antes de procesar
+
+- **Gestión de Categorías** (`src/app/admin/categorias/page.tsx`):
+  - Componente cliente `CategoryListClient` con formulario de creación
+  - Lista de categorías usando `get_all_categories_admin` RPC
+  - Creación de nuevas categorías vía `create_category` RPC
+  - Muestra conteo de productos por categoría
+  - Actualización en tiempo real
+
+- **Gestión de Comercios** (`src/app/admin/comercios/page.tsx`):
+  - Componente cliente `EstablishmentListClient` para visualización
+  - Lista de establecimientos usando `get_all_establishments_admin` RPC
+  - Muestra nombre, país y conteo de ubicaciones
+  - Tabla ordenable
+
+### Modificado
+
+- **Dashboard de Voluntarios**: Actualizado para usar RPCs en lugar de consultas directas
+- **Página de Actualización de Precios**: Corregidos nombres de columnas y RPCs
+- **Página de Retiros**: Corregidos parámetros de RPC y mapeo de propiedades
+- **Página de Historial**: Implementado cálculo de saldo corriente
+- **Dashboard de Administración**: Refactorizado para usar `get_admin_dashboard_stats` RPC
+- **Sidebar de Administración**: Actualizados enlaces a rutas en español
+
+### Técnico
+
+- **Arquitectura**: Todas las operaciones de datos ahora usan RPCs con `SECURITY DEFINER`
+- **Seguridad**: Validación de permisos a nivel de base de datos
+- **Performance**: Consultas optimizadas con índices y agregaciones en RPCs
+- **Mantenibilidad**: Lógica de negocio centralizada en funciones de base de datos
+- **Escalabilidad**: Preparado para cron jobs y automatización
+
+### Notas de Despliegue
+
+1. **Aplicar Migraciones**: Ejecutar todas las migraciones en orden:
+   - `20251121000000_volunteer_rpcs.sql`
+   - `20251121000001_admin_rpcs.sql`
+   - `20251121000002_crons.sql`
+   - `20251121000003_volunteer_update_rpcs.sql`
+   - `20251121000004_volunteer_add_tracking_rpc.sql`
+
+2. **Configurar Cron Jobs** (Opcional):
+   - Configurar servicio externo para llamar a funciones helper
+   - Implementar Edge Functions para tareas automatizadas
+
+3. **Verificar Permisos**: Asegurar que los roles `anon` y `authenticated` tienen acceso a los RPCs
+
+### Próximos Pasos Sugeridos
+
+- Implementar integración de email para notificaciones
+- Configurar cron jobs para recordatorios diarios
+- Agregar políticas RLS adicionales para seguridad granular
+- Implementar sistema de tokens blockchain (Polygon)
+- Agregar internacionalización (i18n)
+
 ## [0.1.2] - 2025-11-20
 **Estado:** Desplegado y publicado en Vercel y Supabase.
 

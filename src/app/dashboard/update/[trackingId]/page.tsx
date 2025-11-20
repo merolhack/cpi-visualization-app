@@ -29,12 +29,12 @@ export default async function UpdatePricePage({ params }: { params: { trackingId
   const { data: trackingData, error: trackingError } = await supabase
     .from('cpi_tracking')
     .select(`
-      tracking_id,
-      product:cpi_products (product_name, product_photo_url, ean_code),
-      establishment:cpi_establishments (establishment_name),
-      location:cpi_locations (location_name)
+      id,
+      product:cpi_products (name, image_url, ean_code),
+      establishment:cpi_establishments (name),
+      location:cpi_locations (name)
     `)
-    .eq('tracking_id', trackingId)
+    .eq('id', trackingId)
     .eq('user_id', user.id)
     .single();
 
@@ -85,7 +85,7 @@ export default async function UpdatePricePage({ params }: { params: { trackingId
   async function stopTracking() {
     'use server';
     const supabase = await createClient();
-    await supabase.rpc('deactivate_product_tracking', { p_tracking_id: trackingId });
+    await supabase.rpc('stop_tracking_product', { p_tracking_id: trackingId });
     revalidatePath('/dashboard');
     redirect('/dashboard');
   }
@@ -108,20 +108,20 @@ export default async function UpdatePricePage({ params }: { params: { trackingId
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">
                   {/* @ts-ignore */}
-                  {trackingData.product.product_name}
+                  {trackingData.product.name}
                 </h1>
                 <p className="text-gray-600">
                   {/* @ts-ignore */}
-                  {trackingData.establishment.establishment_name} • {trackingData.location.location_name}
+                  {trackingData.establishment.name} • {trackingData.location.name}
                 </p>
               </div>
               {/* @ts-ignore */}
-              {trackingData.product.product_photo_url && (
+              {trackingData.product.image_url && (
                 <img 
                   /* @ts-ignore */
-                  src={trackingData.product.product_photo_url} 
+                  src={trackingData.product.image_url} 
                   /* @ts-ignore */
-                  alt={trackingData.product.product_name}
+                  alt={trackingData.product.name}
                   className="w-16 h-16 object-cover rounded-md border border-gray-200"
                 />
               )}

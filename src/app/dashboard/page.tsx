@@ -20,22 +20,25 @@ export default async function PanelVoluntarioPage() {
   }
 
   // Obtener información del dashboard
-  const { data: dashboardData, error: dashboardError } = await supabase
-    .rpc('get_volunteer_dashboard');
+  const { data: dashboardStats, error: dashboardError } = await supabase
+    .rpc('get_volunteer_dashboard_stats');
 
   if (dashboardError) {
     console.error('Error al obtener dashboard:', dashboardError);
   }
 
-  const dashboard = dashboardData || {
-    name: 'Voluntario',
-    current_balance: 0,
-    products_needing_update: 0
+  // Helper to get the first item if it's an array (RPC returns a table/set)
+  const stats = Array.isArray(dashboardStats) ? dashboardStats[0] : dashboardStats;
+
+  const dashboard = {
+    name: user.user_metadata?.full_name || 'Voluntario',
+    current_balance: stats?.current_points || 0,
+    products_needing_update: stats?.pending_updates_count || 0
   };
 
   // Obtener productos que necesitan actualización
   const { data: productsNeedingUpdate } = await supabase
-    .rpc('get_products_needing_update');
+    .rpc('get_products_needing_update_by_volunteer');
 
   const allProductsUpdated = !productsNeedingUpdate || productsNeedingUpdate.length === 0;
 

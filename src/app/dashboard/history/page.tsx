@@ -19,9 +19,29 @@ export default async function HistorialPage() {
     redirect('/auth/login?next=/dashboard/history');
   }
 
+  // Obtener saldo actual
+  const { data: balanceData } = await supabase
+    .from('cpi_finances')
+    .select('current_balance')
+    .eq('user_id', user.id)
+    .order('date', { ascending: false })
+    .limit(1)
+    .single();
+
+  const currentBalance = balanceData?.current_balance || 0;
+
   // Obtener historial financiero
-  const { data: historyData } = await supabase
-    .rpc('get_volunteer_finance_history', { p_limit: 100 });
+  const { data: rawHistory } = await supabase
+    .rpc('get_finance_history');
+
+  const historyData = rawHistory?.map((record: any) => ({
+    finance_id: record.id,
+    concept: record.reason,
+    date: record.created_at,
+    amount: record.points_change,
+    // Balance will be calculated in the client component
+    current_balance: 0 
+  })) || [];
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -41,7 +61,7 @@ export default async function HistorialPage() {
           </p>
         </div>
 
-        <HistoryTable initialData={historyData || []} />
+        <HistoryTable initialData={historyData} initialBalance={currentBalance} />
       </div>
     </main>
   );
