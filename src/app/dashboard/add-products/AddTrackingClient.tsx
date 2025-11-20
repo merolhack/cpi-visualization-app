@@ -60,7 +60,7 @@ export default function AddTrackingClient() {
       .order('country_name');
     
     if (error) console.error('Error loading countries:', error);
-    else setCountries(data?.map(c => ({ id: c.country_id, name: c.country_name })) || []);
+    else setCountries(data?.map((c: { country_id: number; country_name: string }) => ({ id: c.country_id, name: c.country_name })) || []);
   };
 
   const loadLocations = async (countryId: string) => {
@@ -71,7 +71,7 @@ export default function AddTrackingClient() {
       .order('location_name');
 
     if (error) console.error('Error loading locations:', error);
-    else setLocations(data?.map(l => ({ id: l.location_id, name: l.location_name })) || []);
+    else setLocations(data?.map((l: { location_id: number; location_name: string }) => ({ id: l.location_id, name: l.location_name })) || []);
   };
 
   const loadEstablishments = async (countryId: string) => {
@@ -82,7 +82,7 @@ export default function AddTrackingClient() {
       .order('establishment_name');
 
     if (error) console.error('Error loading establishments:', error);
-    else setEstablishments(data?.map(e => ({ id: e.establishment_id, name: e.establishment_name })) || []);
+    else setEstablishments(data?.map((e: { establishment_id: number; establishment_name: string }) => ({ id: e.establishment_id, name: e.establishment_name })) || []);
   };
 
   const searchProducts = async () => {
