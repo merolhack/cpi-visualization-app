@@ -45,8 +45,16 @@ Este lanzamiento añade funcionalidades clave para mejorar la experiencia del us
     - Retiros
     - Criterios
 
+### Infraestructura y Calidad
+- **Entorno de Pruebas**: Configurado Vitest con React Testing Library y happy-dom
+  - Configuración de `vitest.config.ts` y scripts de npm
+  - Tests unitarios para componentes clave (`ProductPriceChangeCarousel`, `Navbar`)
+  - Tests de integración para la página principal (`HomePage`)
+  - Mocks robustos para Supabase SSR y navegación de Next.js
+
 ### Corregido
 - **Conflicto de Migración**: Resuelto error al aplicar migraciones eliminando archivo auto-generado `20251119211724_remote_schema.sql` que intentaba recrear estructuras existentes
+- **Tipado RPC**: Corregido error de tipo de retorno en `get_products_with_significant_changes` (timestamp vs date) mediante nueva migración `20251120010000_fix_carousel_rpc_types.sql`
 
 ## [0.1.1] - 2025-11-19
 **Estado:** Desplegado y publicado en Vercel y Supabase.

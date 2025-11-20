@@ -8,6 +8,7 @@
 - ✅ Sistema de autenticación (login/registro)
 - ✅ Edge Function para validación y optimización de imágenes
 - ✅ Despliegue configurado (Vercel)
+- ✅ Entorno de pruebas (Vitest + React Testing Library)
 
 ### 2. Frontend Público
 - ✅ Página principal con visualización de datos
@@ -137,19 +138,6 @@
 - ❌ Modo oscuro
 - ❌ Internacionalización (i18n) para múltiples países
 - ❌ Responsive design optimizado para móviles
-- ❌ PWA (Progressive Web App) para instalación
-## 🎯 Prioridades Recomendadas
-
-### Fase 1 (Crítico - MVP funcional)
-1. Completar Panel del Voluntario (actualizar precios, ver puntos)
-2. Sistema de puntos automático
-3. Carrusel de productos en página principal
-4. Cron de cálculo de inflación categoría/lugar
-
-### Fase 2 (Importante - Operación básica)
-5. Panel del Webmaster básico (gestión de voluntarios y productos)
-6. Página de estadística de producto individual
-7. Sistema de emails básico (bienvenida, recordatorios)
 8. Gestión de retiros de puntos
 
 ### Fase 3 (Deseable - Mejoras)
