@@ -6,6 +6,7 @@ import CountrySelector from '@/app/_components/CountrySelector';
 import ProductPriceComparisonChart from '@/app/_components/ProductPriceComparisonChart';
 import Navbar from '@/app/_components/Navbar';
 import ProductSearch from '@/app/_components/ProductSearch';
+import ProductPriceChangeCarousel from '@/app/_components/ProductPriceChangeCarousel';
 
 export const dynamic = 'force-dynamic';
 
@@ -131,6 +132,11 @@ export default async function HomePage({
               </p>
             )}
           </div>
+        </section>
+
+        {/* Carrusel de cambios de precio */}
+        <section className="mb-12">
+          <ProductPriceChangeCarousel />
         </section>
 
         {/* Gráfica de comparación de precios */}
