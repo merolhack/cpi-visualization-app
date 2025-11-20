@@ -52,3 +52,5 @@ supabase/.env.*.local
 
 # Optional: ignore the entire local development volume if you're not using it
 supabase/docker-volumes/
+
+schema_backup.sql
