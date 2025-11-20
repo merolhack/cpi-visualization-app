@@ -5,8 +5,53 @@ Todos los cambios notables en el proyecto IRPC (Índice Real de Precios al Consu
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-11-20
+**Estado:** ✅ Desplegado en Supabase Cloud
+
+### Corregido
+
+#### Base de Datos - Migraciones Aplicadas Exitosamente
+
+**Corrección de RPCs:**
+- **Migración `20251121000008_final_correct_rpcs.sql`**: Corrección definitiva de todas las funciones RPC
+  - Corregidos nombres de columnas basados en el esquema real de la base de datos
+  - `cpi_finances`: Usa `amount` (no `points_change`), `current_balance` para saldos
+  - `cpi_tracking`: Usa `is_active_tracking` (no `is_active`)
+  - `cpi_withdrawals`: Usa `sent_date` para determinar estado (NULL = pendiente, NOT NULL = procesado)
+  - Todas las 16 funciones RPC actualizadas con lógica correcta
+  
+- **Migración `20251121000009_drop_all_functions.sql`**: Limpieza de funciones existentes
+  - Eliminación con CASCADE de todas las funciones RPC para evitar conflictos de firma
+  - Preparación para recreación limpia de funciones
+
+**Verificación de Despliegue:**
+- ✅ 32 funciones RPC activas en producción
+- ✅ 17 políticas RLS aplicadas
+- ✅ 19 tablas con seguridad habilitada
+- ✅ 30 índices para optimización
+- ✅ Pruebas exitosas de `get_volunteer_dashboard_stats()` y `get_admin_dashboard_stats()`
+
+**Documentación:**
+- Creado `DB-SCHEMA.md` con esquema completo de la base de datos
+- Creado `database_testing_strategy.md` con estrategia completa de pruebas
+- Creado `manual_migration_guide.md` para aplicación manual de migraciones
+
+### Notas Técnicas
+
+**Resolución de Problemas:**
+- Resuelto error "max clients reached" del CLI de Supabase mediante aplicación manual vía SQL Editor
+- Resueltos conflictos de tipo de retorno mediante DROP CASCADE antes de recrear funciones
+- Verificado esquema real vs. asumido para corregir nombres de columnas
+
+**Estado de la Base de Datos:**
+- Todas las migraciones aplicadas correctamente
+- Sistema listo para pruebas de integración frontend
+- Pendiente: Configuración de cron jobs externos para automatización
+
+---
+
 ## [0.2.0] - 2025-11-20
-**Estado:** Listo para despliegue - Requiere aplicar migraciones de Supabase.
+**Estado:** Migrado a 0.2.1
 
 Este lanzamiento mayor completa la implementación de todas las funcionalidades faltantes del sistema IRPC, incluyendo el Panel de Voluntarios completo, Panel de Webmaster, y automatización backend.
 

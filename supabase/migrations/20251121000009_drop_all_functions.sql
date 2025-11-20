@@ -1,0 +1,23 @@
+-- Drop all functions with CASCADE to handle signature changes
+DROP FUNCTION IF EXISTS get_volunteer_dashboard_stats() CASCADE;
+DROP FUNCTION IF EXISTS get_admin_dashboard_stats() CASCADE;
+DROP FUNCTION IF EXISTS get_finance_history() CASCADE;
+DROP FUNCTION IF EXISTS get_withdrawal_history() CASCADE;
+DROP FUNCTION IF EXISTS request_withdrawal(INTEGER, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS process_withdrawal(UUID, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS process_withdrawal(BIGINT, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS get_pending_withdrawals() CASCADE;
+DROP FUNCTION IF EXISTS get_products_needing_update_by_volunteer() CASCADE;
+DROP FUNCTION IF EXISTS get_available_products_for_tracking(BIGINT, BIGINT, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS stop_tracking_product(UUID) CASCADE;
+DROP FUNCTION IF EXISTS stop_tracking_product(BIGINT) CASCADE;
+DROP FUNCTION IF EXISTS add_products_to_tracking(BIGINT[], BIGINT, BIGINT, BIGINT) CASCADE;
+DROP FUNCTION IF EXISTS add_products_to_tracking(UUID[], BIGINT, BIGINT, BIGINT) CASCADE;
+DROP FUNCTION IF EXISTS get_product_price_history(UUID) CASCADE;
+DROP FUNCTION IF EXISTS get_product_price_history(BIGINT) CASCADE;
+DROP FUNCTION IF EXISTS update_product_price(UUID, NUMERIC, TIMESTAMP WITH TIME ZONE, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS update_product_price(BIGINT, NUMERIC, TIMESTAMP WITH TIME ZONE, TEXT) CASCADE;
+DROP FUNCTION IF EXISTS get_volunteers() CASCADE;
+DROP FUNCTION IF EXISTS get_all_products_admin(TEXT, INTEGER, INTEGER) CASCADE;
+DROP FUNCTION IF EXISTS toggle_product_status(UUID, BOOLEAN) CASCADE;
+DROP FUNCTION IF EXISTS toggle_product_status(BIGINT, BOOLEAN) CASCADE;
