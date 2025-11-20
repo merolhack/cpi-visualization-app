@@ -1,0 +1,344 @@
+# Registro de Cambios
+
+Todos los cambios notables en el proyecto IRPC (Índice Real de Precios al Consumidor) serán documentados en este archivo.
+
+El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.2] - 2025-11-20
+**Estado:** Desplegado y publicado en Vercel y Supabase.
+
+Este lanzamiento añade funcionalidades clave para mejorar la experiencia del usuario y proporciona herramientas de administración para el webmaster.
+
+### Añadido
+
+#### Frontend - Página Principal
+- **Carrusel de Cambios de Precio**: Componente `ProductPriceChangeCarousel` que muestra productos con cambios significativos de precio (>5%)
+  - Rotación automática cada 5 segundos
+  - Navegación manual con puntos de paginación
+  - Muestra foto del producto, precios anterior/actual, porcentaje de cambio, establecimiento y fecha
+  - Enlaces directos a la página de detalle del producto
+  - Indicadores visuales codificados por color (rojo para aumentos, verde para disminuciones)
+
+#### Base de Datos
+- **Función RPC `get_products_with_significant_changes`**: Recupera los 10 productos con mayores cambios de precio
+  - Compara precio actual con precio anterior
+  - Filtra cambios mayores al 5% (positivos o negativos)
+  - Ordena por cambio absoluto porcentual
+  - Permisos otorgados a roles `anon` y `authenticated`
+
+#### Panel del Webmaster
+- **Estructura del Panel de Administración** en `/admin`
+  - Layout con sidebar de navegación (`AdminSidebar`)
+  - Protección de rutas con verificación de autenticación
+  - Dashboard principal con estadísticas del sistema:
+    - Total de voluntarios activos
+    - Productos activos
+    - Precios registrados
+    - Retiros pendientes
+  - Enlaces de acciones rápidas a secciones de gestión
+  - Navegación a módulos de administración:
+    - Voluntarios
+    - Productos
+    - Categorías
+    - Comercios
+    - Retiros
+    - Criterios
+
+### Corregido
+- **Conflicto de Migración**: Resuelto error al aplicar migraciones eliminando archivo auto-generado `20251119211724_remote_schema.sql` que intentaba recrear estructuras existentes
+
+## [0.1.1] - 2025-11-19
+**Estado:** Desplegado y publicado en Vercel y Supabase.
+
+Este lanzamiento consolida todas las funcionalidades desarrolladas hasta la fecha e incluye correcciones críticas para el despliegue en producción.
+
+### Añadido
+
+#### Infraestructura y Base de Datos
+- Esquema completo de base de datos en Supabase con todas las tablas necesarias
+- Creadas tablas `cpi_users`, `cpi_countries`, `cpi_branches`, `cpi_volunteers`
+- Creadas tablas `cpi_finances`, `cpi_withdrawals`, `cpi_locations`
+- Creadas tablas `cpi_categories`, `cpi_establishments`, `cpi_establishment_categories`
+- Creadas tablas `cpi_products`, `cpi_tracking`, `cpi_prices`
+- Creadas tablas `cpi_criteria`, `cpi_weights` para metodología de cálculo
+- Creadas tablas de cálculo de inflación: `cpi_annual_product_location_establishment_inflation`, `cpi_category_location_inflation`, `cpi_category_inflation`, `cpi_real_cpi`
+- Agregada columna `ean_code` a la tabla `cpi_products` para soporte de códigos de barras
+- Agregada columna `currency_code` a la tabla `cpi_countries`
+
+#### Autenticación y Gestión de Usuarios
+- Sistema de registro de usuarios con email y contraseña
+- Sistema de inicio de sesión con gestión de sesiones
+- Funcionalidad de recuperación de contraseña
+- Validación de email para nuevos usuarios
+- Capacidad de registro de usuarios anónimos
+- Función RPC `register_volunteer` para registro seguro de voluntarios con creación automática de registro financiero
+- Gestión de perfil de usuario
+- Políticas de Seguridad a Nivel de Fila (RLS) para usuarios autenticados y anónimos
+
+#### Carga y Validación de Imágenes
+- Edge Function de Supabase `validate-image` para validación de imágenes del lado del servidor
+- Validación de imágenes por tipo MIME (JPEG, PNG, GIF, WebP, HEIC/HEIF)
+- Validación de tamaño de archivo (máx 10MB carga, optimizado a ~500KB)
+- Verificación de magic bytes para prevenir extensiones de archivo falsas
+- Detección de metadatos EXIF para fotos de celular
+- Optimización y compresión automática de imágenes
+- Redimensionamiento de imágenes a máx 1200x1200px manteniendo proporción
+- Conversión a JPEG con ajuste de calidad
+- Configuración de bucket `product-images` en Supabase Storage
+- Carga de imágenes directamente desde formulario de productos
+
+#### Funciones RPC y APIs
+- `add_product_and_price` - Agregar nuevos productos y precios atómicamente
+- `get_latest_prices_by_country` - Recuperar últimos precios por país para comparación
+- `register_volunteer` - Proceso completo de registro de voluntario
+- `get_volunteer_dashboard` - Recuperar resumen del panel del voluntario
+- `get_products_needing_update` - Listar productos que requieren actualización de precio
+- `get_product_price_history` - Obtener últimos 5 precios de un producto
+- `update_product_price` - Actualizar precio de producto con sistema automático de puntos
+- `deactivate_product_tracking` - Remover producto de lista de seguimiento
+- `get_available_products_for_tracking` - Listar productos disponibles para seguimiento
+- `add_products_to_tracking` - Agregar múltiples productos a lista de seguimiento
+- `get_volunteer_finance_history` - Recuperar historial de movimientos financieros
+- `request_withdrawal` - Solicitar retiro de puntos a dirección Polygon
+- `get_withdrawal_history` - Obtener historial de retiros
+
+#### Trabajos Cron
+- Configurado cron job `run-calculate-product-inflation` (cada 5 minutos)
+- Configurado cron job `run-calculate-real-cpi` (cada hora)
+- Almacenamiento de secretos en Vault para configuración segura de cron jobs
+
+#### Páginas Frontend
+- Página de inicio (`/`) con selector de país y visualizaciones de inflación
+- Página de detalle de producto (`/producto/[id]`) mostrando historial de precios y estadísticas
+- Página de metodología (`/metodologia`) explicando proceso de cálculo del IRPC
+- Página de ayuda (`/ayuda`) con información de voluntariado y donaciones
+- Página de inicio de sesión (`/auth/login`) con manejo de errores y redirecciones
+- Página de registro (`/auth/register`) con validación y retroalimentación
+- Página de recuperación de contraseña (`/auth/reset-password`)
+- Página de agregar producto (`/add-product`) con formulario completo y carga de imagen
+- Página principal del panel del voluntario (`/panel`) mostrando tablero y tareas pendientes
+- Funcionalidad de búsqueda de productos con autocompletado
+
+#### Componentes UI
+- Componente `Navbar` con gestión de estado de autenticación
+- Componente `CountrySelector` para filtrar por país
+- Componente `CpiChart` para visualización de series temporales de inflación usando D3.js
+- Componente `ProductPriceComparisonChart` para comparar precios entre establecimientos
+- Componente `LogoutButton` para gestión de sesión
+- Componente `AddProductForm` con carga de imagen y validación
+- Componente `ProductSearch` con búsqueda en tiempo real y debouncing
+
+#### Visualización de Datos
+- Integración de D3.js para gráficas interactivas
+- Gráfica de series temporales mostrando 36 meses de datos de inflación
+- Gráfica de barras comparando precios entre establecimientos
+- Interacciones con tooltips para puntos de datos detallados
+- Diseños de gráficas responsivos
+
+#### Seguridad y Políticas
+- Seguridad a Nivel de Fila (RLS) habilitada en todas las tablas
+- Políticas de acceso de lectura público para países, productos, precios, establecimientos, categorías
+- Políticas de usuario autenticado para insertar productos y precios
+- Políticas de service role para Edge Functions
+- Políticas de usuario anónimo para proceso de registro
+- Políticas de acceso a datos específicos del usuario para voluntarios, finanzas y seguimiento
+
+### Cambiado
+
+#### Infraestructura
+- Actualizada configuración del cliente de Supabase para usar patrón singleton
+- Renombrada función de creación de cliente servidor de `createServerClient` a `createClient`
+- Corregidos conflictos de nombres en importaciones de Supabase
+- Mejorada gestión de cookies en middleware
+
+#### Autenticación
+- Cambiado de `@supabase/auth-helpers-nextjs` a `@supabase/ssr` para mejor compatibilidad con Next.js 15
+- Actualizado flujo de autenticación para usar `window.location.href` para redirecciones confiables
+- Mejorada verificación de sesión usando `getUser()` en lugar de `getSession()` por seguridad
+- Mejorados mensajes de error para ocultar detalles técnicos de base de datos
+
+#### UI/UX
+- Actualizada página de inicio de sesión con mejor manejo de errores y retroalimentación al usuario
+- Mejorado formulario de registro con validación del lado del cliente
+- Mejorada barra de navegación con estado dinámico de usuario y funcionalidad de cierre de sesión
+- Agregados estados de carga y mensajes de éxito en toda la aplicación
+- Todos los mensajes de error son amigables sin exponer internos de base de datos
+
+#### Información de Contacto
+- Actualizado número de WhatsApp de +52 55 4433 2211 a +52 1 55 3171 6648
+- Actualizado enlace del repositorio GitHub a https://github.com/merolhack/cpi-visualization-app
+
+### Corregido
+
+#### Despliegue y Hotfixes (2025-11-19)
+- **Error de Sintaxis en Auth Callback**: Se corrigió un error de código duplicado en `src/app/auth/callback/route.ts` que causaba fallos de compilación.
+- **Manejo de Cookies en Supabase SSR**: Se actualizó la implementación de `createServerClient` en `src/app/auth/callback/route.ts` para manejar correctamente las cookies según las últimas especificaciones de `@supabase/ssr`.
+- **Limpieza de Componentes**: Se eliminaron comentarios de artefactos en `src/app/_components/AddProductForm.tsx` que interferían con el proceso de construcción.
+- **Tipado Estricto en AddTrackingClient**: Se resolvieron errores de tipo implícito (`any`) en `src/app/dashboard/add-products/AddTrackingClient.tsx` añadiendo tipos explícitos a los callbacks de `map`, permitiendo un despliegue exitoso en Vercel.
+
+#### Problemas de Autenticación
+- Resueltas violaciones de política RLS durante registro de usuario
+- Corregida gestión de sesión en Next.js Server Components
+- Corregida persistencia de estado de autenticación entre navegaciones de página
+- Corregidos problemas de bucle de redirección después de inicio de sesión
+
+#### Base de Datos
+- Corregido conflicto de nombres `createServerClient` con función importada
+- Resueltos errores de análisis de cookies en cliente de Supabase
+- Corregida advertencia de múltiples instancias de GoTrueClient
+
+#### Carga de Imágenes
+- Prevenido uso de localStorage/sessionStorage en artifacts (no soportado en Claude.ai)
+- Corregida validación de archivos para verificar firmas de archivo reales, no solo tipos MIME
+- Resueltos errores de carga de imagen implementando Edge Function apropiada
+
+#### UI/UX
+- Corregida barra de navegación que no mostraba botón de cierre de sesión cuando estaba autenticado
+- Corregidos mensajes de validación de formularios
+- Corregidos errores de tipo TypeScript en componentes de gráficas
+- Resueltos problemas de tipado de selecciones D3.js
+
+### Seguridad
+
+#### Implementado
+- Validación de imágenes del lado del servidor para prevenir cargas de archivos maliciosos
+- Funciones SECURITY DEFINER para operaciones seguras de datos
+- Políticas RLS para proteger datos de usuario
+- Hash de contraseñas a través de Supabase Auth
+- Protección CSRF a través de gestión de sesión de Supabase
+- Sanitización de entrada en todos los formularios
+
+#### Protegido Contra
+- Inyección SQL a través de consultas parametrizadas
+- Ataques de carga de archivos a través de verificación de magic bytes
+- Secuestro de sesión a través de manejo seguro de cookies
+- Acceso no autorizado a datos a través de políticas RLS
+- Ataques XSS a través de protecciones integradas de React
+
+### Documentación
+
+#### Añadido
+- README.md completo con arquitectura del sistema
+- Documentación de esquema de base de datos con diagrama entidad-relación
+- Documentación de API para todas las funciones RPC
+- Página de metodología explicando proceso de cálculo
+- Página de ayuda con instrucciones de voluntariado y donación
+- Comentarios de código en español para mejor comprensión del equipo
+- Instrucciones de configuración para Edge Functions
+- Documentación de configuración de cron jobs
+
+### Desarrollo
+
+#### Herramientas y Configuración
+- Next.js 15.5.2 con Turbopack habilitado
+- TypeScript 5 para seguridad de tipos
+- Tailwind CSS 4 para estilos
+- ESLint para calidad de código
+- Supabase CLI para desarrollo local
+- D3.js 7.9.0 para visualización de datos
+
+#### Actualizaciones de Paquetes
+- Agregado `@supabase/ssr` ^0.7.0
+- Agregado `@supabase/supabase-js` ^2.57.2
+- Agregado `d3` ^7.9.0 y `@types/d3` ^7.4.3
+- Agregado CLI `supabase` ^2.58.5
+
+## [0.1.0] - 2025-09-30
+Este lanzamiento inicial consolida la arquitectura completa del sistema IRPC (Next.js/Supabase/D3.js), la lógica central de la base de datos (RPC), la configuración de seguridad (RLS) y la automatización (Edge Functions).
+
+### Añadido (Added)
+*   **Arquitectura de Clientes Duales (Next.js/Supabase)**: Se implementó el patrón de clientes Supabase diferenciados, utilizando `createServerClient` para Server Components (gestión segura de *cookies* y tokens) y `createBrowserClient` para Client Components.
+*   **Mecanismo de Refresco de Sesión (Middleware)**: Se añadió `middleware.ts` con la función `updateSession` que llama a `supabase.auth.getUser()` para refrescar automáticamente la sesión del usuario si ha expirado, asegurando que las peticiones a los Server Components sean válidas.
+*   **Funciones RPC para Base de Datos**:
+    *   **`add_product_and_price`**: Función creada para manejar la lógica de inserción de productos y precios con una operación tipo UPSERT manual en PostgreSQL.
+    *   **`get_latest_prices_by_country`**: Función implementada utilizando la cláusula `DISTINCT ON` para obtener de manera eficiente el precio más reciente de cada combinación producto/establecimiento, optimizada para la gráfica de comparación de precios.
+*   **Políticas de Seguridad (RLS)**: Se creó una política `FOR INSERT` para la tabla `cpi_products` (`TO authenticated WITH CHECK (true)`) para permitir a los voluntarios registrados insertar datos.
+*   **Visualización D3.js (Frontend)**:
+    *   Se agregó el componente `CpiChart.tsx` (Client Component) para la visualización principal de la **gráfica de línea de la Inflación Mensual**, empleando `d3.scaleTime` y `d3.scaleLinear`.
+    *   Se añadió el componente `ProductPriceComparisonChart.tsx` para mostrar una **gráfica de barras agrupadas** con los precios más recientes por comercio.
+    *   Se incluyó la lógica de D3 para implementar **tooltips interactivos** en las gráficas, activados por eventos `mouseover` y `mousemove`.
+*   **Automatización de Cálculos (Edge Functions)**: Se definieron las dos funciones principales del sistema para la ejecución de cron jobs:
+    *   `calculate-product-inflation` (programada para cada 5 minutos).
+    *   `calculate-real-cpi` (programada para cada hora).
+*   **Configuración RLS Pública de Catálogo**: Se estableció una política de `SELECT` para la tabla `cpi_countries` con permisos para los roles `anon` y `authenticated` (`USING (true)`) para desbloquear la carga inicial de catálogos.
+*   **Inserción de Datos Iniciales**: Se ejecutó la inserción de comercios para México (`cpi_establishments`) usando un subquery dinámico para obtener el `country_id` de 'México'.
+
+### Corregido (Fixed)
+*   **Manejo de Promesas en Next.js 15**: Se resolvió un error de *runtime* al confirmar que el objeto `searchParams` en Next.js 15+ es una Promesa que debe ser esperado con `await` antes de acceder a sus propiedades.
+*   **Fallo de INSERT por RLS Implícito**: Se corrigió un error donde las operaciones de `INSERT` fallaban debido a la falta de una política de `SELECT` requerida por el encabezado `Prefer: return=representation`. Se solucionó añadiendo la política `FOR SELECT TO authenticated` en las tablas de escritura.
+*   **Violación de Integridad de Datos**: Se resolvió la violación de llave foránea asegurando la **inserción de la rama económica** (`cpi_branches`) antes de insertar la categoría (`cpi_categories`), respetando la jerarquía de la base de datos.
+*   **Despliegue de Edge Functions (CLI)**: Se solucionó el error de `unknown flag: --cron` al adoptar el flujo correcto: desplegar funciones sin cron y luego programarlas mediante las extensiones de PostgreSQL **`pg_cron`** y **`pg_net`** en el dashboard de Supabase.
+*   **Configuración de Secretos de Servicio**: Se corrigió el fallo de la CLI de Supabase que ignora variables con el prefijo `SUPABASE_`. El secreto `SUPABASE_SERVICE_ROLE_KEY` fue renombrado a **`SERVICE_ROLE_KEY`** y se actualizó el código de las Edge Functions para leer el nuevo nombre.
+*   **Fallo de Dependencias de Edge Function**: Se resolvió el error de `Module not found` durante el despliegue creando la carpeta compartida `supabase/functions/_shared/` y el archivo `cors.ts` que la función estaba intentando importar.
+*   **Tipado Estricto en Vercel**: Se resolvieron los fallos de despliegue en Vercel (linting/tipado) al reemplazar tipado genérico (`any`) con tipos explícitos (`MouseEvent`) en D3.js y al prefijar variables sin usar con `_`.
+*   **Modificación de Firma de Funciones SQL**: Se encontró y corrigió el error `cannot change return type of existing function` al modificar una función RPC, implementando el método de **`DROP FUNCTION IF EXISTS`** antes de recrearla con la nueva estructura de `RETURNS TABLE`.
+*   **Problema de Acceso de Lectura Anónima**: Se diagnosticó que las llamadas RPC fallaban porque el cliente se ejecutaba con el rol `anon`. Se implementó la solución inmediata de modificar las políticas RLS para permitir al rol **`anon`** y **`authenticated`** el acceso `SELECT` a las tablas de resultados públicos.
+
+### Cambiado (Changed)
+*   **Arquitectura de Autenticación**: Se cambió el uso de los paquetes `auth-helpers` a la implementación recomendada con **`@supabase/ssr`** para el App Router de Next.js.
+*   **Estrategia de Renderizado de Next.js**: Se forzó el renderizado dinámico en `src/app/page.tsx` con `export const dynamic = 'force-dynamic'` para evitar problemas de caché con la selección de país.
+*   **Observabilidad de Edge Functions**: Se mejoró el *logging* en ambas Edge Functions (`calculate-product-inflation` y `calculate-real-cpi`) para incluir `console.log`, `console.warn` y `console.error` detallados para un mejor monitoreo del flujo de ejecución.
+*   **Recomendación de Infraestructura**: Se recomendó la migración al **Plan Pro de Supabase** para el entorno de producción, basándose en el riesgo de *timeouts* y la necesidad de mayor estabilidad al escalar los cálculos de inflación con el crecimiento de la base de datos.
+
+---
+
+## Notas
+
+### Funcionalidades Pendientes
+Las siguientes funcionalidades están documentadas pero aún no implementadas:
+
+#### Panel del Voluntario
+- Página de actualización de precio de producto con historial de precios
+- Página de agregar productos a seguimiento con filtros
+- Página de solicitud de retiro con integración Polygon
+- Página de historial de finanzas con exportaciones
+
+#### Panel del Webmaster (Panel de Administrador)
+- Gestión de voluntarios (crear, editar, suspender)
+- Gestión de productos (crear, editar, activar/desactivar)
+- Gestión de categorías
+- Gestión de establecimientos
+- Gestión de criterios de cálculo
+- Interfaz de procesamiento de retiros
+
+#### Cron Jobs Adicionales
+- Calcular inflación de categoría y lugar (cada 15 minutos)
+- Calcular inflación de categoría con ponderación por población
+- Notificaciones diarias por email a voluntarios
+- Validación automática de precios
+
+#### Integraciones
+- API de WhatsApp Business para recibir fotos de precios
+- Blockchain Polygon para distribución de tokens IRPC
+- Servicio de email (Resend, SendGrid) para notificaciones
+- Compartir en redes sociales
+
+#### Mejoras de UI
+- Carrusel de cambios importantes de precio en página de inicio
+- Página de estadísticas de producto con múltiples líneas de precio
+- Funcionalidad de exportación de datos (CSV, JSON)
+- Soporte para modo oscuro
+- Internacionalización (i18n)
+- Funcionalidades de Progressive Web App (PWA)
+- Notificaciones push
+
+### Cambios Incompatibles
+Ninguno en esta versión.
+
+### Funcionalidades Obsoletas
+Ninguna en esta versión.
+
+### Problemas Conocidos
+- La validación de Edge Function funciona en producción pero puede tener problemas en configuración local de Supabase
+- Algunas advertencias de cookies del navegador en modo desarrollo (no afectarán producción)
+- La optimización de imágenes requiere ambiente Deno Deploy
+
+### Guía de Migración
+No se requieren migraciones para este lanzamiento inicial.
+
+---
+
+**Repositorio**: https://github.com/merolhack/cpi-visualization-app  
+**Contacto**: WhatsApp +52 1 55 3903 3699
+**Documentación**: Ver README.md en el repositorio
