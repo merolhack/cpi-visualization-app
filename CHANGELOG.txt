@@ -5,6 +5,30 @@ Todos los cambios notables en el proyecto IRPC (Índice Real de Precios al Consu
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] - 2025-11-30
+**Estado:** ✅ En desarrollo
+
+### Añadido
+
+#### Base de Datos - Productos Canónicos
+- **Migración `20251130000000_add_canonical_products.sql`**: Implementación de estrategia de normalización de productos
+  - Nueva tabla `cpi_canonical_products` para agrupar productos similares de diferentes comercios (ej. "Pollo Entero")
+  - Nueva columna `canonical_id` en `cpi_products` como clave foránea
+  - Actualización de RPC `add_product_and_price` para aceptar `p_canonical_id` opcional
+  - Índices y políticas RLS para la nueva tabla
+
+#### Documentación
+- **Análisis de Relación de Productos**: `PRODUCT_RELATIONSHIP_ANALYSIS.md` detallando la estrategia de productos canónicos vs coincidencia por palabras clave
+- **Resumen de Flujos de Usuario**: `USER_FLOW_SUMMARY.md` documentando los flujos actuales de autenticación y gestión de datos
+
+### Corregido
+
+#### Tests
+- **ProductPriceComparisonChart**: Corregidos 3 tests fallidos en `ProductPriceComparisonChart.test.tsx`
+  - Causa: Mocks de D3.js incompletos (escalas no invocables, selectores no recursivos)
+  - Solución: Implementados mocks robustos para escalas D3 (`scaleBand`, `scaleLinear`) y selectores recursivos (`selectAll`)
+
+
 ## [0.2.2] - 2025-11-20
 **Estado:** ✅ Listo para despliegue
 

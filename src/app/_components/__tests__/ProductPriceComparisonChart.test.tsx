@@ -3,51 +3,46 @@ import { describe, it, expect, vi } from 'vitest';
 import ProductPriceComparisonChart from '../ProductPriceComparisonChart';
 
 // Mock D3
-vi.mock('d3', () => ({
-  select: vi.fn(() => ({
-    selectAll: vi.fn(() => ({
-      remove: vi.fn(),
-      data: vi.fn().mockReturnThis(),
-      join: vi.fn().mockReturnThis(),
-      attr: vi.fn().mockReturnThis(),
-      style: vi.fn().mockReturnThis(),
-      text: vi.fn().mockReturnThis(),
-    })),
-    style: vi.fn(() => '800'),
-    append: vi.fn(() => ({
-      attr: vi.fn().mockReturnThis(),
-      call: vi.fn().mockReturnThis(),
-      selectAll: vi.fn(() => ({
-        attr: vi.fn().mockReturnThis(),
-        style: vi.fn().mockReturnThis(),
-        data: vi.fn().mockReturnThis(),
-        join: vi.fn(() => ({
-          attr: vi.fn().mockReturnThis(),
-          selectAll: vi.fn(() => ({
-            data: vi.fn().mockReturnThis(),
-            join: vi.fn().mockReturnThis(),
-            attr: vi.fn().mockReturnThis(),
-          })),
-        })),
-        text: vi.fn().mockReturnThis(),
-        append: vi.fn().mockReturnThis(),
-      })),
-    })),
-  })),
-  scaleBand: vi.fn(() => ({
+// Helper to create a callable mock with properties
+const createMockScale = (returnValue: any = 50) => {
+  const scale = vi.fn(() => returnValue);
+  const methods = {
     domain: vi.fn().mockReturnThis(),
     range: vi.fn().mockReturnThis(),
     padding: vi.fn().mockReturnThis(),
     bandwidth: vi.fn(() => 50),
-  })),
-  scaleLinear: vi.fn(() => ({
-    domain: vi.fn().mockReturnThis(),
-    range: vi.fn().mockReturnThis(),
     nice: vi.fn().mockReturnThis(),
-  })),
-  scaleOrdinal: vi.fn(() => ({
-    domain: vi.fn().mockReturnThis(),
-  })),
+  };
+  return Object.assign(scale, methods);
+};
+
+// Mock D3
+// Helper to create a recursive mock selection
+const createMockSelection = () => {
+  const selection: any = {
+    remove: vi.fn().mockReturnThis(),
+    data: vi.fn().mockReturnThis(),
+    join: vi.fn().mockReturnThis(),
+    attr: vi.fn().mockReturnThis(),
+    style: vi.fn(function(this: any, name, value) {
+      if (value === undefined) return '800';
+      return this;
+    }),
+    text: vi.fn().mockReturnThis(),
+    call: vi.fn().mockReturnThis(),
+    append: vi.fn().mockReturnThis(),
+    selectAll: vi.fn(() => createMockSelection()),
+    select: vi.fn(() => createMockSelection()),
+  };
+  return selection;
+};
+
+// Mock D3
+vi.mock('d3', () => ({
+  select: vi.fn(() => createMockSelection()),
+  scaleBand: vi.fn(() => createMockScale(50)),
+  scaleLinear: vi.fn(() => createMockScale(100)),
+  scaleOrdinal: vi.fn(() => createMockScale('#000000')),
   max: vi.fn(() => 100),
   group: vi.fn((data: any[], key: any) => {
     const grouped = new Map();
@@ -61,9 +56,13 @@ vi.mock('d3', () => ({
     return grouped;
   }),
   axisBottom: vi.fn(() => vi.fn()),
-  axisLeft: vi.fn(() => ({
-    tickFormat: vi.fn().mockReturnThis(),
-  })),
+  axisLeft: vi.fn(() => {
+    const axis = vi.fn();
+    const methods = {
+      tickFormat: vi.fn().mockReturnThis(),
+    };
+    return Object.assign(axis, methods);
+  }),
   schemeCategory10: ['#1f77b4', '#ff7f0e', '#2ca02c'],
 }));
 
