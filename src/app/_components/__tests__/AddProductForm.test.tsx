@@ -57,11 +57,33 @@ describe('AddProductForm', () => {
     });
   });
 
-  it('renders form with product name input', async () => {
+  it('renders all form fields', async () => {
     render(<AddProductForm />);
     
     await waitFor(() => {
+      // Product Name
       expect(screen.getByPlaceholderText(/ej: leche entera/i)).toBeInTheDocument();
+      
+      // EAN Code
+      expect(screen.getByPlaceholderText(/ej: 750100012345/i)).toBeInTheDocument();
+      
+      // Country
+      expect(screen.getByRole('combobox', { name: /país/i })).toBeInTheDocument();
+      
+      // Category
+      expect(screen.getByRole('combobox', { name: /categoría/i })).toBeInTheDocument();
+      
+      // Establishment
+      expect(screen.getByRole('combobox', { name: /establecimiento/i })).toBeInTheDocument();
+      
+      // Location
+      expect(screen.getByRole('combobox', { name: /ubicación/i })).toBeInTheDocument();
+      
+      // Price
+      expect(screen.getByPlaceholderText('0.00')).toBeInTheDocument();
+      
+      // Date
+      expect(screen.getByLabelText(/fecha del precio/i)).toBeInTheDocument();
     });
   });
 

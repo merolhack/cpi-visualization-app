@@ -88,7 +88,7 @@ export default function AddProductForm() {
     }
   };
 
-    const loadLocations = async (countryId: string) => {
+  const loadLocations = async (countryId: string) => {
     try {
       const { data, error } = await supabase
         .from('cpi_locations')
@@ -275,12 +275,12 @@ export default function AddProductForm() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Campos del formulario... */}
         <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">
             Nombre del Producto *
           </label>
           <input
+            id="productName"
             type="text"
             name="productName"
             value={formData.productName}
@@ -290,8 +290,147 @@ export default function AddProductForm() {
           />
         </div>
 
+        <div>
+          <label htmlFor="eanCode" className="block text-sm font-medium text-gray-700 mb-1">
+            Código EAN *
+          </label>
+          <input
+            id="eanCode"
+            type="text"
+            name="eanCode"
+            value={formData.eanCode}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ej: 750100012345"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="countryId" className="block text-sm font-medium text-gray-700 mb-1">
+            País *
+          </label>
+          <select
+            id="countryId"
+            name="countryId"
+            value={formData.countryId}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecciona un país</option>
+            {countries.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700 mb-1">
+            Categoría *
+          </label>
+          <select
+            id="categoryId"
+            name="categoryId"
+            value={formData.categoryId}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Selecciona una categoría</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="establishmentId" className="block text-sm font-medium text-gray-700 mb-1">
+            Establecimiento *
+          </label>
+          <select
+            id="establishmentId"
+            name="establishmentId"
+            value={formData.establishmentId}
+            onChange={handleInputChange}
+            disabled={!formData.countryId}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+          >
+            <option value="">Selecciona un establecimiento</option>
+            {establishments.map(e => (
+              <option key={e.id} value={e.id}>{e.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="locationId" className="block text-sm font-medium text-gray-700 mb-1">
+            Ubicación (Sucursal) *
+          </label>
+          <select
+            id="locationId"
+            name="locationId"
+            value={formData.locationId}
+            onChange={handleInputChange}
+            disabled={!formData.countryId}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+          >
+            <option value="">Selecciona una ubicación</option>
+            {locations.map(l => (
+              <option key={l.id} value={l.id}>{l.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="priceValue" className="block text-sm font-medium text-gray-700 mb-1">
+            Precio *
+          </label>
+          <div className="relative">
+            <span className="absolute left-3 top-2 text-gray-500">$</span>
+            <input
+              id="priceValue"
+              type="number"
+              name="priceValue"
+              value={formData.priceValue}
+              onChange={handleInputChange}
+              step="0.01"
+              min="0"
+              className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="0.00"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="priceDate" className="block text-sm font-medium text-gray-700 mb-1">
+            Fecha del Precio *
+          </label>
+          <input
+            id="priceDate"
+            type="date"
+            name="priceDate"
+            value={formData.priceDate}
+            onChange={handleInputChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
         <div className="md:col-span-2">
-           {/* Placeholder for other fields if needed, but keeping it simple as per original */}
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Foto del Producto / Precio (Opcional)
+          </label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          />
+          {imagePreview && (
+            <div className="mt-2">
+              <img src={imagePreview} alt="Preview" className="h-32 object-cover rounded-md border" />
+            </div>
+          )}
+          <p className="text-xs text-gray-500 mt-1">
+            Formatos: JPG, PNG, WebP. Máximo 5MB.
+          </p>
         </div>
         
         <button

@@ -12,7 +12,10 @@
   - ✅ **Phase 1**: 55 tests de componentes (8 componentes)
   - ✅ **Phase 2**: 22 tests de páginas de autenticación (5 páginas)
   - ✅ **Total**: 80/83 tests pasando (96.4% tasa de éxito)
+  - ✅ **Total**: 80/83 tests pasando (96.4% tasa de éxito)
   - ✅ **Fix**: Corregidos tests de `ProductPriceComparisonChart` (mocks D3) -> 100% pasando
+  - ✅ **Fix**: Agregados campos faltantes en `AddProductForm` (UI)
+  - ✅ **Fix**: Corregida accesibilidad en `AddProductForm` (ids y labels)
 
 ### 1.1 Base de Datos - Mejoras
 - ✅ **Productos Canónicos**: Implementada tabla `cpi_canonical_products` y relaciones para normalización de productos entre comercios

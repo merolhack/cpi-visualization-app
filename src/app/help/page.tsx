@@ -190,7 +190,7 @@ export default function AyudaPage() {
                     <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Preferido</span>
                   </div>
                   <p className="text-sm text-gray-600 mb-3">
-                    Acepta USDT, USDC, ETH en red Polygon
+                    Red BNB Smart Chain (BEP20)
                   </p>
                   <div className="bg-gray-50 rounded p-3 break-all text-xs font-mono text-gray-700">
                     0x658cfd9f5F3F8345d8f71E1758544284dD606ca8
@@ -206,7 +206,7 @@ export default function AyudaPage() {
                     Contacta por WhatsApp para obtener datos bancarios
                   </p>
                   <a
-                    href="https://wa.me/525544332211?text=Quiero%20hacer%20una%20donación"
+                    href="https://wa.me/525539033699?text=Quiero%20hacer%20una%20donación"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block text-sm text-green-600 hover:text-green-700 font-medium"
