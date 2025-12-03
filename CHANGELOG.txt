@@ -5,6 +5,19 @@ Todos los cambios notables en el proyecto IRPC (Índice Real de Precios al Consu
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2025-12-03
+**Estado:** ✅ Refactorizado y Testeado
+
+### Modificado
+
+#### Base de Datos
+- **Refactorización**: Eliminadas políticas RLS duplicadas en `cpi_criteria`, `cpi_locations` y `cpi_withdrawals`.
+- **Performance**: Agregado índice faltante `idx_cpi_products_category_id` en `cpi_products`.
+
+#### Frontend
+- **AddProductForm**: Refactorizado para usar `useCallback` en funciones de carga de datos y manejadores de eventos para mejorar rendimiento.
+- **Tipado**: Mejorada la seguridad de tipos (eliminado `any`) y extraída lógica de validación de imágenes.
+
 ## [0.2.3] - 2025-11-30
 **Estado:** ✅ En desarrollo
 

@@ -17,6 +17,7 @@
   - ✅ **Fix**: Agregados campos faltantes en `AddProductForm` (UI)
   - ✅ **Fix**: Corregida accesibilidad en `AddProductForm` (ids y labels)
   - ✅ **Tests**: Generados tests para 15 páginas (Public, Dashboard, Admin) -> 100% Cobertura de Páginas
+  - ✅ **Refactor**: Optimización de `AddProductForm` (useCallback, tipos) y limpieza de DB (RLS, índices).
 
 ### 1.1 Base de Datos - Mejoras
 - ✅ **Productos Canónicos**: Implementada tabla `cpi_canonical_products` y relaciones para normalización de productos entre comercios

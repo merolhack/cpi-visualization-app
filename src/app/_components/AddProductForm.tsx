@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/app/lib/supabase/client';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 interface FormData {
   productName: string;
@@ -46,20 +45,7 @@ export default function AddProductForm() {
 
   const supabase = createClient();
 
-  // Cargar datos iniciales
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  // Cargar locations y establishments cuando se selecciona país
-  useEffect(() => {
-    if (formData.countryId) {
-      loadLocations(formData.countryId);
-      loadEstablishments(formData.countryId);
-    }
-  }, [formData.countryId]);
-
-  const loadInitialData = async () => {
+  const loadInitialData = useCallback(async () => {
     try {
       const [countriesRes, categoriesRes] = await Promise.all([
         supabase.from('cpi_countries').select('country_id, country_name').order('country_name'),
@@ -82,13 +68,13 @@ export default function AddProductForm() {
           name: c.category_name
         })) || []
       );
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error loading initial data:', err);
       setError('Error al cargar los datos iniciales');
     }
-  };
+  }, [supabase]);
 
-  const loadLocations = async (countryId: string) => {
+  const loadLocations = useCallback(async (countryId: string) => {
     try {
       const { data, error } = await supabase
         .from('cpi_locations')
@@ -104,13 +90,13 @@ export default function AddProductForm() {
           name: l.location_name
         })) || []
       );
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error loading locations:', err);
       setError('Error al cargar los lugares');
     }
-  };
+  }, [supabase]);
 
-  const loadEstablishments = async (countryId: string) => {
+  const loadEstablishments = useCallback(async (countryId: string) => {
     try {
       const { data, error } = await supabase
         .from('cpi_establishments')
@@ -126,29 +112,47 @@ export default function AddProductForm() {
           name: e.establishment_name
         })) || []
       );
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Error loading establishments:', err);
       setError('Error al cargar los establecimientos');
     }
-  };
+  }, [supabase]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // Cargar datos iniciales
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+
+  // Cargar locations y establishments cuando se selecciona país
+  useEffect(() => {
+    if (formData.countryId) {
+      loadLocations(formData.countryId);
+      loadEstablishments(formData.countryId);
+    }
+  }, [formData.countryId, loadLocations, loadEstablishments]);
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  }, []);
+
+  const validateImage = (file: File): string | null => {
+    if (!file.type.startsWith('image/')) {
+      return 'Por favor selecciona un archivo de imagen válido';
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      return 'La imagen no debe superar los 5MB';
+    }
+    return null;
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validaciones
-    if (!file.type.startsWith('image/')) {
-      setError('Por favor selecciona un archivo de imagen válido');
-      return;
-    }
-    
-    if (file.size > 5 * 1024 * 1024) {
-      setError('La imagen no debe superar los 5MB');
+    const validationError = validateImage(file);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -158,9 +162,9 @@ export default function AddProductForm() {
     const reader = new FileReader();
     reader.onloadend = () => setImagePreview(reader.result as string);
     reader.readAsDataURL(file);
-  };
+  }, []);
 
-  const uploadImage = async (file: File): Promise<string> => {
+  const uploadImage = useCallback(async (file: File): Promise<string> => {
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -185,13 +189,14 @@ export default function AddProductForm() {
       }
 
       return result.url;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error uploading image:', err);
-      throw new Error(err.message || 'Error al subir la imagen');
+      const message = err instanceof Error ? err.message : 'Error al subir la imagen';
+      throw new Error(message);
     }
-  };
+  }, [supabase]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -252,13 +257,14 @@ export default function AddProductForm() {
 
       setTimeout(() => setSuccess(null), 5000);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error submitting form:', err);
-      setError(err.message || 'Error al guardar el producto');
+      const message = err instanceof Error ? err.message : 'Error al guardar el producto';
+      setError(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [formData, imageFile, supabase, uploadImage]);
 
   return (
     <div className="space-y-6">
