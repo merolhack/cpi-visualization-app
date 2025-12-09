@@ -12,6 +12,7 @@
   - ✅ **Phase 1**: 55 tests de componentes (8 componentes)
   - ✅ **Phase 2**: 22 tests de páginas de autenticación (5 páginas)
   - ✅ **Total**: 80/83 tests pasando (96.4% tasa de éxito)
+  - ✅ **Security**: Update Next.js v16.0.8 (CVE-2025-66478).
   - ✅ **Total**: 80/83 tests pasando (96.4% tasa de éxito)
   - ✅ **Fix**: Corregidos tests de `ProductPriceComparisonChart` (mocks D3) -> 100% pasando
   - ✅ **Fix**: Agregados campos faltantes en `AddProductForm` (UI)
