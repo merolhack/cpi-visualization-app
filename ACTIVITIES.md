@@ -131,6 +131,7 @@
   - ✅ 17 políticas RLS aplicadas
   - ✅ 19 tablas con seguridad habilitada (RLS)
   - ✅ 30 índices para optimización
+  - ✅ **Fix**: Resuelta ambigüedad en RPC `add_product_and_price` (Error 300) mediante eliminación de versiones obsoletas.
 - ✅ Funciones helper para automatización:
   - `recalculate_daily_cpi()` - Recalcula CPI diario
   - `get_volunteers_needing_reminders()` - Identifica voluntarios para recordatorios

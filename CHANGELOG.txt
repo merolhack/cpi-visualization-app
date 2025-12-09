@@ -5,6 +5,17 @@ Todos los cambios notables en el proyecto IRPC (Índice Real de Precios al Consu
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.2.5] - 2025-12-09
+**Estado:** ✅ Parche de Producción
+
+### Corregido
+
+#### Backend - RPCs
+- **Ambigüedad en `add_product_and_price`**: Resuelto error 300 Multiple Choices (PGRST203) causado por sobrecarga de funciones.
+  - Causa: Coexistencia de versión antigua (8 argumentos) y nueva (9 argumentos) de la función.
+  - Solución: Migración `20251209000000_fix_rpc_ambiguity.sql` que elimina explícitamente las versiones antiguas.
+
 ## [0.2.4] - 2025-12-03
 **Estado:** ✅ Refactorizado y Testeado
 

@@ -62,3 +62,17 @@ supabase/CLEANUP_ORPHANED_USER.sql
 test-results.json
 test_output.txt
 register_test_output.txt
+
+# Temporary / Analysis files
+seed_product.sql
+PRODUCT_RELATIONSHIP_ANALYSIS.md
+USER_FLOW_SUMMARY.md
+WARNINGS-SUGGESTIONS.md
+UNUSED_INDEXES.md
+DB-INFO.md
+CLEANUP_ALL_ORPHANS.sql
+CLEANUP_ORPHANED_USER.sql
+supabase_status.json
+project-code.txt
+project-summary.json
+generate-summary.js
