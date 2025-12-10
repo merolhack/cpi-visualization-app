@@ -39,7 +39,7 @@
     "glob": "^11.0.3",
     "happy-dom": "^20.0.10",
     "jsdom": "^27.0.1",
-    "supabase": "^2.58.5",
+    "supabase": "^2.65.7",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.10"
