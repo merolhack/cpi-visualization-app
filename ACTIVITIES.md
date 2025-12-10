@@ -23,6 +23,8 @@
   - ✅ **Fix**: Agregadas políticas RLS para dropdowns (countries, categories, establishments, locations).
   - ✅ **Fix**: Agregado `supabase/seed.sql` con datos semilla para desarrollo local.
   - ✅ **Fix**: Documentada solución para errores de autenticación local (regenerar hash bcrypt).
+  - ✅ **Refactor**: Rutas de admin estandarizadas a inglés (`/admin/volunteers`, `/admin/products`, etc.).
+  - ✅ **Test**: E2E testing completo (registro, login, add product, admin pages) verificado.
 
 ### 1.1 Base de Datos - Mejoras
 - ✅ **Productos Canónicos**: Implementada tabla `cpi_canonical_products` y relaciones para normalización de productos entre comercios

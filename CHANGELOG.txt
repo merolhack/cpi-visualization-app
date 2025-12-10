@@ -7,6 +7,35 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
 
 
 
+## [0.2.8] - 2025-12-10
+**Estado:** ✅ Rutas de Admin Estandarizadas y Testeadas
+
+### Modificado
+
+#### Rutas de Administración
+- **Rutas estandarizadas a inglés**: Todas las rutas de admin ahora usan paths en inglés:
+  - `/admin/voluntarios` → `/admin/volunteers`
+  - `/admin/productos` → `/admin/products`
+  - `/admin/categorias` → `/admin/categories`
+  - `/admin/comercios` → `/admin/establishments`
+  - `/admin/retiros` → `/admin/withdrawals`
+- **Sidebar actualizado**: `AdminSidebar.tsx` usa rutas en inglés.
+- **Página principal admin**: Enlaces de acciones rápidas actualizados.
+
+### Corregido
+- **Menú duplicado**: Eliminado `<AdminSidebar>` duplicado en `voluntarios/page.tsx` (ya renderizado por layout).
+- **RPCs faltantes locales**: Aplicada migración `20251121000008_final_correct_rpcs.sql` manualmente.
+
+### Verificado
+- ✅ Registro de usuario (`fulltest@example.com`)
+- ✅ Login y redirección a `/add-product`
+- ✅ Página Add Product (dropdowns poblados)
+- ✅ Página principal (home)
+- ✅ Admin Dashboard (estadísticas visibles)
+- ✅ Admin Volunteers
+- ✅ Admin Products
+- ✅ Persistencia en BD (4 usuarios, 4 voluntarios, 2 productos)
+
 ## [0.2.7] - 2025-12-10
 **Estado:** ✅ Correcciones de Ambiente Local y Datos
 

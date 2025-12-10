@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { createClient } from '@/app/lib/supabase/server';
-import AdminSidebar from '@/app/_components/AdminSidebar';
 import EstablishmentListClient from './EstablishmentListClient';
 
 export const metadata: Metadata = {
@@ -18,19 +17,15 @@ export default async function AdminEstablishmentsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
-      
-      <div className="flex-1 p-8">
-        <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Comercios</h1>
-            <p className="text-gray-600">Gestión de establecimientos comerciales</p>
-          </div>
+    <div className="p-8">
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Comercios</h1>
+          <p className="text-gray-600">Gestión de establecimientos comerciales</p>
         </div>
-
-        <EstablishmentListClient initialEstablishments={establishments || []} />
       </div>
+
+      <EstablishmentListClient initialEstablishments={establishments || []} />
     </div>
   );
 }

@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
 import { createClient } from '@/app/lib/supabase/server';
-import AdminSidebar from '@/app/_components/AdminSidebar';
 import WithdrawalListClient from './WithdrawalListClient';
 
 export const metadata: Metadata = {
@@ -18,19 +17,15 @@ export default async function AdminWithdrawalsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
-      
-      <div className="flex-1 p-8">
-        <div className="mb-6 flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Retiros Pendientes</h1>
-            <p className="text-gray-600">Solicitudes de retiro de puntos por procesar</p>
-          </div>
+    <div className="p-8">
+      <div className="mb-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Retiros Pendientes</h1>
+          <p className="text-gray-600">Solicitudes de retiro de puntos por procesar</p>
         </div>
-
-        <WithdrawalListClient initialWithdrawals={withdrawals || []} />
       </div>
+
+      <WithdrawalListClient initialWithdrawals={withdrawals || []} />
     </div>
   );
 }

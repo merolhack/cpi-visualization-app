@@ -89,7 +89,7 @@ export default async function AdminDashboardPage() {
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Acciones Rápidas</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
-            href="/admin/voluntarios"
+            href="/admin/volunteers"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
@@ -104,7 +104,7 @@ export default async function AdminDashboardPage() {
           </a>
 
           <a
-            href="/admin/productos"
+            href="/admin/products"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
@@ -119,7 +119,7 @@ export default async function AdminDashboardPage() {
           </a>
 
           <a
-            href="/admin/retiros"
+            href="/admin/withdrawals"
             className="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
           >
             <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-3">
