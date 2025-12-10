@@ -7,6 +7,27 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
 
 
 
+## [0.2.7] - 2025-12-10
+**Estado:** ✅ Correcciones de Ambiente Local y Datos
+
+### Corregido
+
+#### Base de Datos - Schema y Políticas
+- **Columna `ean_code`**: Agregada columna faltante en `cpi_products` para códigos de barras.
+- **Políticas RLS para Dropdowns**: Agregadas políticas de lectura pública para:
+  - `cpi_countries`
+  - `cpi_categories`
+  - `cpi_establishments`
+  - `cpi_locations`
+- **Datos Semilla**: Agregado `supabase/seed.sql` con datos mínimos para desarrollo local.
+
+#### Autenticación Local
+- **Documentación**: Agregada solución para errores de autenticación local causados por hashes de contraseña inválidos.
+  - Solución: Regenerar hash con `crypt('password', gen_salt('bf'))` en PostgreSQL.
+
+### Añadido
+- **Archivo `supabase/seed.sql`**: Datos iniciales para país, categoría, establecimiento y ubicación.
+
 ## [0.2.6] - 2025-12-09
 **Estado:** ✅ Parche de Seguridad
 
