@@ -2,11 +2,6 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import AdminCategoriesPage from '../page';
 
-// Mock AdminSidebar
-vi.mock('@/app/_components/AdminSidebar', () => ({
-  default: () => <div data-testid="admin-sidebar">Admin Sidebar</div>,
-}));
-
 // Mock CategoryListClient
 vi.mock('../CategoryListClient', () => ({
   default: () => <div data-testid="category-list-client">Category List Client</div>,
@@ -26,7 +21,7 @@ describe('AdminCategoriesPage', () => {
     vi.clearAllMocks();
   });
 
-  it('renders categories page with sidebar and client component', async () => {
+  it('renders categories page with title and client component', async () => {
     mockRpc.mockResolvedValue({ 
       data: [{ id: 1, name: 'Category 1' }], 
       error: null 
@@ -36,7 +31,6 @@ describe('AdminCategoriesPage', () => {
     render(jsx);
 
     expect(screen.getByText('Categorías')).toBeInTheDocument();
-    expect(screen.getByTestId('admin-sidebar')).toBeInTheDocument();
     expect(screen.getByTestId('category-list-client')).toBeInTheDocument();
   });
 });

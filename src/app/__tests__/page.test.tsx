@@ -118,6 +118,6 @@ describe('Home Page', () => {
     expect(screen.getByTestId('carousel')).toBeInTheDocument();
     expect(screen.getByTestId('search')).toBeInTheDocument();
     expect(screen.getByTestId('inflation-chart')).toBeInTheDocument();
-    expect(screen.getByTestId('price-chart')).toBeInTheDocument();
+    // Note: price-chart (ProductPriceComparisonChart) is currently hidden
   });
 });

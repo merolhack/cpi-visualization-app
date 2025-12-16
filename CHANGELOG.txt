@@ -5,6 +5,27 @@ Todos los cambios notables en el proyecto IRPC (Índice Real de Precios al Consu
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.9] - 2025-12-15
+**Estado:** ✅ Mejoras UI y Corrección de Tests
+
+### Modificado
+
+#### Frontend - Página Principal
+- **Sección oculta temporalmente**: Comentada la sección "Comparación de Precios por Comercio" en la página principal (`page.tsx`) para simplificar la interfaz.
+
+### Corregido
+
+#### Tests
+- **Tests de Admin Pages**: Corregidos 5 tests unitarios en páginas de administración que fallaban por esperar `AdminSidebar` dentro de las páginas individuales (el sidebar está en el layout, no en las páginas):
+  - `EstablishmentsPage.test.tsx`
+  - `CategoriesPage.test.tsx`
+  - `ProductsPage.test.tsx`
+  - `VolunteersPage.test.tsx`
+  - `WithdrawalsAdminPage.test.tsx`
+- **Test de HomePage**: Actualizado `page.test.tsx` para no esperar el componente `price-chart` que ahora está oculto.
+
+### Verificado
+- ✅ 123/123 tests pasando (100% tasa de éxito)
 
 
 ## [0.2.8] - 2025-12-10

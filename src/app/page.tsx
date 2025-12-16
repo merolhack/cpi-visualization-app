@@ -139,7 +139,7 @@ export default async function HomePage({
           <ProductPriceChangeCarousel />
         </section>
 
-        {/* Gráfica de comparación de precios */}
+        {/* Gráfica de comparación de precios - Oculta temporalmente
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800">
             Comparación de Precios por Comercio
@@ -157,6 +157,7 @@ export default async function HomePage({
             )}
           </div>
         </section>
+        */}
 
         {/* Información del sistema y WhatsApp */}
         <section className="bg-white rounded-lg shadow-lg p-8 mb-12">

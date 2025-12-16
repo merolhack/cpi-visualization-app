@@ -2,11 +2,6 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import AdminVolunteersPage from '../page';
 
-// Mock AdminSidebar
-vi.mock('@/app/_components/AdminSidebar', () => ({
-  default: () => <div data-testid="admin-sidebar">Admin Sidebar</div>,
-}));
-
 // Mock Supabase client
 const mockRpc = vi.fn();
 
@@ -38,7 +33,6 @@ describe('AdminVolunteersPage', () => {
     render(jsx);
 
     expect(screen.getByText('Voluntarios')).toBeInTheDocument();
-    expect(screen.getByTestId('admin-sidebar')).toBeInTheDocument();
     expect(screen.getByText('user-123...')).toBeInTheDocument();
     expect(screen.getByText('100 pts')).toBeInTheDocument();
   });
