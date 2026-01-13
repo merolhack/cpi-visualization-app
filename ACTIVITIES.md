@@ -6,6 +6,7 @@
 - ✅ Base de datos en Supabase con esquema completo
 - ✅ Integración Next.js + Supabase
 - ✅ Sistema de autenticación (login/registro)
+- ✅ **Fix**: Otorgado permiso de administrador a usuarios clave y corregido manejo de errores en `AddProductForm`.
 - ✅ Edge Function para validación y optimización de imágenes
 - ✅ Despliegue configurado (Vercel)
 - ✅ **Entorno de pruebas completo (Vitest + React Testing Library)**

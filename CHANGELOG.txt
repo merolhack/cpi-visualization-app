@@ -5,6 +5,19 @@ Todos los cambios notables en el proyecto IRPC (Índice Real de Precios al Consu
 El formato está basado en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.10] - 2026-01-12
+**Estado:** ✅ Corrección de Permisos y Manejo de Errores
+
+### Corregido
+
+#### Permisos y Seguridad
+- **Admin Access**: Otorgado acceso de administrador a usuarios específicos (`monteromarco@yahoo.com`, `marcomontero@hotmail.com`).
+- **RLS Policies**: Agregadas políticas explicitas para permitir a los administradores insertar productos y precios.
+- **Migración**: `20260113000000_grant_admin_access.sql` implementando estos cambios.
+
+#### Frontend
+- **AddProductForm**: Mejorado el manejo de errores para mostrar mensajes detallados del backend en lugar de errores genéricos.
+
 ## [0.2.9] - 2025-12-15
 **Estado:** ✅ Mejoras UI y Corrección de Tests
 

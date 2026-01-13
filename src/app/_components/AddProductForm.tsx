@@ -259,8 +259,14 @@ export default function AddProductForm() {
 
     } catch (err: unknown) {
       console.error('Error submitting form:', err);
+      // Capture the specific error message if available
       const message = err instanceof Error ? err.message : 'Error al guardar el producto';
-      setError(message);
+      // If it's a PostgREST error object, it might be stringified or have details
+      if (typeof err === 'object' && err !== null && 'details' in err) {
+         setError(`Error detallado: ${(err as any).message || (err as any).details}`);
+      } else {
+         setError(message);
+      }
     } finally {
       setLoading(false);
     }
