@@ -13,7 +13,8 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
 #### Permisos y Seguridad
 - **Admin Access**: Otorgado acceso de administrador a usuarios específicos (`monteromarco@yahoo.com`, `marcomontero@hotmail.com`).
 - **RLS Policies**: Agregadas políticas explicitas para permitir a los administradores insertar productos y precios.
-- **Migración**: `20260113000000_grant_admin_access.sql` implementando estos cambios.
+- **Fix**: Recreado RPC `get_all_products_admin` para asegurar visibilidad de productos en panel administrativo.
+- **Migración**: `20260113000000_grant_admin_access.sql` y `20260113000001_recreate_admin_rpc.sql` implementando estos cambios.
 
 #### Frontend
 - **AddProductForm**: Mejorado el manejo de errores para mostrar mensajes detallados del backend en lugar de errores genéricos.
