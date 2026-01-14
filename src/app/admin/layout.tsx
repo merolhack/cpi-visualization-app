@@ -21,9 +21,18 @@ export default async function AdminLayout({
     redirect('/auth/login?next=/admin');
   }
 
-  // TODO: Verificar que el usuario sea administrador
-  // Por ahora, cualquier usuario autenticado puede acceder
-  // En producción, deberías verificar el rol del usuario aquí
+  // Verify user is an administrator
+  const { data: userData, error: userError } = await supabase
+    .from('cpi_users')
+    .select('role')
+    .eq('user_id', user.id)
+    .single();
+
+  const isAdmin = user.app_metadata?.claims_admin === true || userData?.role === 'admin';
+
+  if (!isAdmin) {
+    redirect('/?error=unauthorized');
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
