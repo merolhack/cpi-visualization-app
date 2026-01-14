@@ -1,0 +1,27 @@
+[
+  {
+    "id": "68a5501f-9f74-459d-9b0d-25ef6564937e",
+    "email": "merolhack@gmail.com",
+    "role": "user"
+  },
+  {
+    "id": "8b80a8ce-d3c3-4232-a9ca-e64119e7adea",
+    "email": "lenin.meza@the-cocktail.com",
+    "role": "user"
+  },
+  {
+    "id": "c84569d4-83da-4ee3-8058-8fa0ca3dca11",
+    "email": "webmaster@indicedeprecios.com",
+    "role": "user"
+  },
+  {
+    "id": "43ee42d3-ee55-4046-8902-a192a5a8ab1a",
+    "email": "monteromarco@yahoo.com",
+    "role": "admin"
+  },
+  {
+    "id": "b4b133a6-dea6-41f1-8a07-309324354b9e",
+    "email": "marcomontero@hotmail.com",
+    "role": "admin"
+  }
+]

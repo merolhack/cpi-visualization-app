@@ -15,8 +15,9 @@
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.7.0",
-    "@supabase/supabase-js": "^2.57.2",
+    "@supabase/supabase-js": "^2.90.1",
     "d3": "^7.9.0",
+    "dotenv": "^17.2.3",
     "next": "^16.0.8",
     "react": "19.1.0",
     "react-dom": "19.1.0"

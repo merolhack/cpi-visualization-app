@@ -106,7 +106,12 @@ INSERT INTO "public"."cpi_products" ("product_id", "country_id", "category_id", 
 -- Data for Name: cpi_users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
--- cpi_users insert removed and handled by script
+INSERT INTO "public"."cpi_users" ("user_id", "email", "role") VALUES
+	('68a5501f-9f74-459d-9b0d-25ef6564937e', 'merolhack@gmail.com', 'user'),
+	('8b80a8ce-d3c3-4232-a9ca-e64119e7adea', 'lenin.meza@the-cocktail.com', 'user'),
+	('c84569d4-83da-4ee3-8058-8fa0ca3dca11', 'webmaster@indicedeprecios.com', 'user'),
+	('43ee42d3-ee55-4046-8902-a192a5a8ab1a', 'monteromarco@yahoo.com', 'admin'),
+	('b4b133a6-dea6-41f1-8a07-309324354b9e', 'marcomontero@hotmail.com', 'admin');
 
 
 --

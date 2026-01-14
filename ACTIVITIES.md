@@ -147,6 +147,8 @@
 
 **Pendiente:**
 - ⏳ Configuración de cron jobs externos (GitHub Actions, Vercel Cron, o servicio dedicado)
+- [x] Fix admin access and verification tests <!-- id: 5 -->
+- [x] Deploy fixes for admin RPCs and documentation <!-- id: 6 -->
 - ⏳ Sistema de notificaciones por email a voluntarios
 
 ---

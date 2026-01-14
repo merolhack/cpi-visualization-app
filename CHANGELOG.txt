@@ -387,7 +387,14 @@ Este lanzamiento mayor completa la implementación de todas las funcionalidades 
 
 - **Gestión de Categorías** (`src/app/admin/categorias/page.tsx`):
   - Componente cliente `CategoryListClient` con formulario de creación
-  - Lista de categorías usando `get_all_categories_admin` RPC
+  - Lista de categorías
+- Fix: Corrected `get_all_categories_admin` RPC to use `category_name` instead of `name`.
+- Feat: Restored admin access and verified admin dashboard functionality.
+- Doc: Added Troubleshooting guide for local DB sync and auth repair.
+
+## [0.2.11] - 2026-01-13
+- Fix: Admin page RPC column mismatch.
+- Chore: Cleanup of local migration scripts.
   - Creación de nuevas categorías vía `create_category` RPC
   - Muestra conteo de productos por categoría
   - Actualización en tiempo real

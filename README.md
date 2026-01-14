@@ -440,3 +440,29 @@ Este cron calcula el valor de inflación para cada país, para cada criterio y p
 *   Los voluntarios pueden elegir productos existentes o dar de alta nuevos para su lista de seguimiento. Opcionalmente, el webmaster puede incluir productos dados de alta por voluntarios en la lista general.
 *   Se puede generar un reporte del índice de precios basado solo en la lista de seguimiento del voluntario para motivarlo.
 *   Se asigna 1 punto al voluntario si agrega un precio de un producto cuya actualización más reciente tiene más de 30 días de antigüedad, evitando así puntos diarios por actualizaciones constantes del mismo producto.
+
+## Troubleshooting y Desarrollo Local
+
+### 1. Sincronización de Base de Datos Local vs Remota
+Cuando se sincroniza la base de datos local desde una descarga remota, es común que la tabla `auth.users` no se sincronice perfectamente debido a la naturaleza multi-tenant de Supabase Auth.
+*   **Problema Común**: El usuario admin existe en `auth.users` pero falla al loguearse con "Database error finding user" (Error 500).
+*   **Causa**: Falta de consistencia en `instance_id`, falta de registro en `auth.identities`, o `identity_data` incorrecto (particularmente el campo `sub` debe coincidir con el `user_id`).
+*   **Solución ("Plan C")**:
+    1.  Crear un usuario temporal (e.g., `temp_admin@temp.com`).
+    2.  Migrar toda la data (`cpi_prices`, `cpi_users`, etc.) del usuario corrupto al temporal usando SQL.
+    3.  Borrar el usuario corrupto de `auth.users`.
+    4.  Recrear el usuario original usando la **Supabase Admin API** (no SQL directo) especificando el **UUID Original**.
+    5.  Restaurar la data del usuario temporal al original.
+    6.  Borrar el usuario temporal.
+
+### 2. Discrepancia en Columnas RPC
+Las funciones RPC (Stored Procedures) pueden fallar si el esquema local difiere ligeramente del remoto (e.g., nombres de columnas renombradas).
+*   **Caso Real**: La función `get_all_categories_admin` fallaba porque referenciaba `c.name` en lugar de `c.category_name`.
+*   **Recomendación**: Siempre verificar la definición de la tabla (`\d cpi_categories`) antes de asumir nombres de columnas en scripts de corrección.
+
+### 3. Scripts de Utilidad
+Se han creado scripts en `scripts/` para facilitar tareas administrativas:
+*   `create_admin.js`: Crea un usuario admin con UUID específico usando la API.
+*   `test_login.js`: Verifica login programáticamente sin navegador.
+*   `get_anon_key.py`: Extrae llaves de API desde `supabase status`.
+
