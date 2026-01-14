@@ -10,7 +10,11 @@ export const metadata: Metadata = {
 export default async function AdminProductsPage() {
   const supabase = await createClient();
 
-  const { data: products, error } = await supabase.rpc('get_all_products_admin');
+  const { data: products, error } = await supabase.rpc('get_all_products_admin', {
+    p_search: null,
+    p_limit: 100,
+    p_offset: 0
+  });
 
   if (error) {
     console.error('Error fetching products:', error);
