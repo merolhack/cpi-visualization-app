@@ -29,6 +29,7 @@ export default async function AdminVolunteersPage() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Usuario</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Productos Seguidos</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Puntos Totales</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Última Actividad</th>
@@ -37,12 +38,15 @@ export default async function AdminVolunteersPage() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {volunteers && volunteers.length > 0 ? (
-              volunteers.map((volunteer: { user_id: string; products_tracked: number; total_points: number; last_active: string | null }) => (
+              volunteers.map((volunteer: { user_id: string; email: string; products_tracked: number; total_points: number; last_active: string | null }) => (
                 <tr key={volunteer.user_id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                     <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
                       {volunteer.user_id.substring(0, 8)}...
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {volunteer.email || 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {volunteer.products_tracked}

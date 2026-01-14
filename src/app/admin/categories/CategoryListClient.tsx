@@ -5,8 +5,8 @@ import { createClient } from '@/app/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
 interface Category {
-  id: number;
-  name: string;
+  category_id: number;
+  category_name: string;
   product_count: number;
 }
 
@@ -92,12 +92,12 @@ export default function CategoryListClient({ initialCategories }: { initialCateg
             <tbody className="bg-white divide-y divide-gray-200">
               {categories.length > 0 ? (
                 categories.map((category) => (
-                  <tr key={category.id}>
+                  <tr key={category.category_id}>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {category.id}
+                      {category.category_id}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {category.name}
+                      {category.category_name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                       {category.product_count}

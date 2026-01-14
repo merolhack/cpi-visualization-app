@@ -1604,7 +1604,7 @@ INSERT INTO "public"."cpi_tracking" ("tracking_id", "country_id", "product_id", 
 --
 
 INSERT INTO "public"."cpi_volunteers" ("user_id", "email", "name", "whatsapp", "country_id", "suspended") VALUES
-	('43ee42d3-ee55-4046-8902-a192a5a8ab1a', 'monteromarco@yahoo.com', 'Marco', NULL, 1, false),
+
 	('8b80a8ce-d3c3-4232-a9ca-e64119e7adea', 'lenin.meza@the-cocktail.com', 'Volunteer', NULL, NULL, false),
 	('c84569d4-83da-4ee3-8058-8fa0ca3dca11', 'webmaster@indicedeprecios.com', 'Web Scraper', NULL, NULL, false),
 	('b4b133a6-dea6-41f1-8a07-309324354b9e', 'marcomontero@hotmail.com', 'Volunteer', NULL, NULL, false);

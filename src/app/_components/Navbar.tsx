@@ -59,6 +59,16 @@ export default function Navbar() {
                 <span className="text-sm text-gray-600 hidden md:inline">
                   {user.email}
                 </span>
+                {/* Admin Link Check */}
+                {user.app_metadata?.claims_admin && (
+                  <a
+                    href="/admin"
+                    className="px-4 py-2 text-sm font-medium text-white bg-gray-800 rounded-md hover:bg-gray-900 transition-colors"
+                  >
+                    Admin Panel
+                  </a>
+                )}
+
                 <a
                   href="/add-product"
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
