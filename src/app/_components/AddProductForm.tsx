@@ -217,8 +217,8 @@ export default function AddProductForm() {
         imageUrl = await uploadImage(imageFile);
       }
 
-      // Llamar RPC
-      const { data, error: rpcError } = await supabase.rpc('add_product_and_price', {
+      // Llamar RPC - ahora retorna product_id directamente
+      const { data: productId, error: rpcError } = await supabase.rpc('add_product_and_price', {
         p_product_name: formData.productName,
         p_ean_code: formData.eanCode,
         p_country_id: parseInt(formData.countryId),
@@ -232,11 +232,16 @@ export default function AddProductForm() {
       if (rpcError) throw rpcError;
 
       // Actualizar imagen del producto si corresponde
-      if (imageUrl && data && data[0]?.product_id) {
-        await supabase
+      if (imageUrl && productId) {
+        const { error: updateError } = await supabase
           .from('cpi_products')
           .update({ product_photo_url: imageUrl })
-          .eq('product_id', data[0].product_id);
+          .eq('product_id', productId);
+        
+        if (updateError) {
+          console.error('Error updating product image:', updateError);
+          // Don't throw - product and price were created successfully
+        }
       }
 
       setSuccess('✓ Producto y precio agregados exitosamente');
