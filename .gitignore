@@ -77,3 +77,7 @@ supabase_status.json
 project-code.txt
 project-summary.json
 generate-summary.js
+
+# Sensitive auth data - should never be in git
+supabase/seed_auth.sql
+supabase/seed_remote.sql
